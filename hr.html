@@ -4,17 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#060a11">
 <title>ATC · HR</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&display=swap">
-<link rel="stylesheet" href="assets/css/theme.css">
-<link rel="stylesheet" href="assets/css/admin.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
 <link rel="stylesheet" href="assets/css/hr.css">
 </head>
 <body class="admin-body">
 
-<!-- ──────── LOGIN ──────── -->
+<!-- LOGIN -->
 <section id="login" class="admin-login">
   <div class="login-box">
     <div class="login-head">
@@ -31,7 +30,7 @@
   </div>
 </section>
 
-<!-- ──────── HR DASHBOARD ──────── -->
+<!-- DASHBOARD -->
 <div id="dashboard" class="admin-dashboard hidden">
 
   <header class="terminal-ticker">
@@ -47,105 +46,125 @@
   <section class="kpi-strip" id="kpiStrip" aria-label="HR numbers"></section>
 
   <nav class="hr-tabs" id="hrTabs">
-    <button data-tab="members"  class="active">MEMBERS</button>
+    <button data-tab="people" class="active">PEOPLE</button>
     <button data-tab="compose">COMPOSE</button>
     <button data-tab="sent">SENT</button>
-    <button data-tab="invoices">INVOICES</button>
   </nav>
 
-  <!-- MEMBERS -->
-  <section class="hr-panel active" data-panel="members">
+  <!-- PEOPLE ────────────────────────────────────────────── -->
+  <section class="hr-panel active" data-panel="people">
+
     <div class="panel">
       <div class="panel-head">
-        <h3>CLUB BOARD</h3>
-        <input type="search" id="memberSearch" class="hr-search" placeholder="Search name or role…" autocomplete="off">
+        <h3>CLUB MEMBERS · <span id="clubCount" style="color:var(--green)">0</span></h3>
+        <input type="search" id="clubSearch" class="hr-search" placeholder="Search members…" autocomplete="off">
       </div>
-      <div class="members-grid" id="membersGrid"></div>
+      <div class="table-scroll">
+        <table id="clubTable" class="terminal-table"></table>
+      </div>
     </div>
+
+    <div class="panel" style="margin-top:12px">
+      <div class="panel-head">
+        <h3>BOARD · 12</h3>
+        <input type="search" id="boardSearch" class="hr-search" placeholder="Search board…" autocomplete="off">
+      </div>
+      <div class="members-grid" id="boardGrid"></div>
+    </div>
+
   </section>
 
-  <!-- COMPOSE -->
+  <!-- COMPOSE ────────────────────────────────────────────── -->
   <section class="hr-panel" data-panel="compose">
     <div class="panel">
       <div class="panel-head">
-        <h3>NEW EMAIL</h3>
-        <span class="panel-tag" id="composeTag">MAILAPP</span>
+        <h3>NEW MESSAGE</h3>
+        <span class="panel-tag" id="composeTag">MAILAPP · HTML</span>
       </div>
+
       <form id="composeForm" class="hr-form" autocomplete="off">
-        <label class="hr-field">
-          <span class="hr-label">TO</span>
-          <select id="toSelect" class="hr-input" required></select>
-        </label>
-        <div id="customToWrap" class="hr-custom hidden">
-          <label class="hr-field">
-            <span class="hr-label">CUSTOM EMAIL</span>
-            <input id="toCustomEmail" type="email" class="hr-input" placeholder="someone@example.com">
-          </label>
-          <label class="hr-field">
-            <span class="hr-label">CUSTOM NAME (optional)</span>
-            <input id="toCustomName" type="text" class="hr-input" placeholder="Their name">
-          </label>
+
+        <div class="hr-field">
+          <span class="hr-label">RECIPIENTS</span>
+          <div class="chips" id="chips"></div>
+          <div class="add-recipient">
+            <input id="addRecipient" list="allPeopleList" placeholder="Add by name or email…" autocomplete="off">
+            <datalist id="allPeopleList"></datalist>
+            <button type="button" id="addRecipientBtn">ADD</button>
+          </div>
         </div>
+
         <label class="hr-field">
           <span class="hr-label">SUBJECT</span>
           <input id="subject" type="text" class="hr-input" maxlength="200" required>
         </label>
-        <label class="hr-field">
-          <span class="hr-label">BODY</span>
-          <textarea id="body" class="hr-input" rows="7" required></textarea>
-        </label>
 
-        <fieldset class="hr-invoice-box">
-          <legend>ATTACH INVOICE <span class="muted">(optional — leave amount at 0 for a plain email)</span></legend>
-          <div class="hr-invoice-grid">
-            <label class="hr-field">
-              <span class="hr-label">AMOUNT</span>
-              <input id="amount" type="number" min="0" step="0.01" placeholder="0.00" class="hr-input">
-            </label>
-            <label class="hr-field">
-              <span class="hr-label">CURRENCY</span>
-              <select id="currency" class="hr-input">
-                <option>TND</option><option>EUR</option><option>USD</option>
+        <div class="hr-field">
+          <span class="hr-label">MESSAGE</span>
+          <div class="editor-wrap">
+            <div class="editor-toolbar" id="editorToolbar">
+              <button type="button" data-cmd="bold" title="Bold (Ctrl+B)"><b>B</b></button>
+              <button type="button" data-cmd="italic" title="Italic (Ctrl+I)"><i>I</i></button>
+              <button type="button" data-cmd="underline" title="Underline (Ctrl+U)"><u>U</u></button>
+              <span class="tb-sep"></span>
+              <button type="button" data-cmd="hiliteColor" data-val="#fff3a0" title="Highlight" class="hl-btn">▮</button>
+              <span class="tb-sep"></span>
+              <select data-cmd="fontName" id="tbFont" title="Font">
+                <option value="">Font</option>
+                <option value="Arial, sans-serif">Sans</option>
+                <option value="Georgia, serif">Serif</option>
+                <option value="'JetBrains Mono', monospace">Mono</option>
+                <option value="'Times New Roman', serif">Times</option>
               </select>
-            </label>
-            <label class="hr-field hr-field-wide">
-              <span class="hr-label">DESCRIPTION</span>
-              <input id="desc" type="text" maxlength="200" placeholder="Membership fee, event ticket, etc." class="hr-input">
-            </label>
+              <select data-cmd="fontSize" id="tbSize" title="Size">
+                <option value="">Size</option>
+                <option value="2">Small</option>
+                <option value="3">Normal</option>
+                <option value="5">Large</option>
+                <option value="6">Huge</option>
+              </select>
+              <span class="tb-sep"></span>
+              <button type="button" data-cmd="createLink" title="Insert link">🔗</button>
+              <button type="button" data-cmd="insertImage" title="Insert image URL">🖼</button>
+              <span class="tb-sep"></span>
+              <button type="button" data-cmd="justifyLeft" title="Align left">⇤</button>
+              <button type="button" data-cmd="justifyCenter" title="Center">↔</button>
+              <span class="tb-sep"></span>
+              <button type="button" data-cmd="removeFormat" title="Clear formatting">✕</button>
+            </div>
+            <div class="editor-body" id="editorBody" contenteditable="true"
+                 data-placeholder="Write your message…"></div>
           </div>
-        </fieldset>
+        </div>
 
         <p id="composeErr" class="login-err hidden"></p>
         <div class="hr-compose-actions">
           <button type="submit" class="hr-send-btn" id="sendBtn">SEND ▸</button>
           <span id="sendStatus" class="status-pill hidden"></span>
         </div>
+
       </form>
     </div>
   </section>
 
-  <!-- SENT -->
+  <!-- SENT ───────────────────────────────────────────────── -->
   <section class="hr-panel" data-panel="sent">
     <div class="panel">
       <div class="panel-head">
-        <h3>SENT EMAILS</h3>
+        <h3>SENT</h3>
         <span class="panel-tag" id="sentTag">—</span>
       </div>
       <div class="table-scroll"><table id="sentTable" class="terminal-table"></table></div>
     </div>
   </section>
 
-  <!-- INVOICES -->
-  <section class="hr-panel" data-panel="invoices">
-    <div class="panel">
-      <div class="panel-head">
-        <h3>INVOICES</h3>
-        <span class="panel-tag" id="invTag">—</span>
-      </div>
-      <div class="table-scroll"><table id="invTable" class="terminal-table"></table></div>
-    </div>
-  </section>
+</div>
 
+<!-- Floating selection bar -->
+<div class="selection-bar hidden" id="selectionBar">
+  <span class="sel-count"><b id="selCount">0</b> selected</span>
+  <button type="button" id="composeSelectedBtn">✉ MESSAGE SELECTED</button>
+  <button type="button" id="clearSelectionBtn">✕ CLEAR</button>
 </div>
 
 <script src="assets/js/config.js"></script>

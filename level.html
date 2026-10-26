@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>What Kind of Trader Are You? — Algorithmic Trading Club</title>
+<link rel="stylesheet" href="assets/css/theme.css">
+</head>
+<body class="site-body">
+<main class="page-shell">
+  <div class="brand"><span class="brand-mark" aria-hidden="true">ATC</span><span>Algorithmic Trading Club</span></div>
+  <div id="app" class="app-card app-content"></div>
+</main>
+</div>
+
+<script src="assets/js/config.js"></script>
+<script src="assets/js/common.js"></script>
+<script>
+/* ===== Professor's questions and results: unchanged ===== */
+const P=[
+ {q:"You receive an unexpected $1,000. What do you do?",a:[["Put it in a safe savings fund.","G"],["Invest in a few companies you've researched well.","R"],["Put it on whatever is trending this week.","P"]]},
+ {q:"Your investment drops 20% in a single day. Your first move?",a:[["Sell before it gets worse.","G"],["Re-check my reasoning, then hold or buy more.","R"],["Jump into whatever is moving fast right now.","P"]]},
+ {q:"What excites you most about markets?",a:[["Steady growth that compounds over time.","G"],["Finding an edge that others missed.","R"],["The rush of a fast move.","P"]]},
+ {q:"Pick one offer:",a:[["A guaranteed $500.","G"],["A 50% chance of winning $1,200.","R"],["A 10% chance of winning $6,000.","P"]]},
+ {q:"How do you decide on a trade?",a:[["Strict rules and diversification. Safety first.","G"],["Research, conviction, and a sized position.","R"],["Gut feeling and what everyone is talking about.","P"]]},
+ {q:"Your ideal trading pace?",a:[["Check in once a month.","G"],["A few times a week, with a plan.","R"],["All day, every day.","P"]]}
+];
+const K=[
+ {c:"F",q:"What does diversification mean?",a:["Putting everything in your best stock","Spreading investments to reduce risk","Trading as often as possible","Borrowing money to invest"],r:1},
+ {c:"F",q:"In a 'bull market', prices are generally...",a:["Rising","Falling","Frozen","Unpredictable by law"],r:0},
+ {c:"F",q:"What is the bid-ask spread?",a:["The fee your broker charges monthly","The gap between the highest buy price and lowest sell price","The yearly return of a stock","The size of a company"],r:1},
+ {c:"T",q:"Which language is most popular for data analysis and quantitative research?",a:["CSS","Swift","Python","COBOL"],r:2},
+ {c:"T",q:"What does a 'loop' do in programming?",a:["Repeats a block of code","Deletes a file","Connects to Wi-Fi","Compresses images"],r:0},
+ {c:"T",q:"What is an API?",a:["A type of computer chip","A way for programs to request data or services from each other","A programming mistake","A spreadsheet format"],r:1}
+];
+const TYPES={
+ G:{n:"Risk averse",s:"The Guardian",d:"You protect capital first. Slow, steady, and disciplined wins for you.",fit:"Risk management, portfolio construction and low-volatility strategies.",tip:"Your instinct is a real edge. Many strategies fail because nobody thought about the downside."},
+ R:{n:"The Risk Taker",s:"Calculated conviction",d:"You'll take big positions, but only when your research backs them.",fit:"Statistical arbitrage research, strategy design and position sizing.",tip:"Learn position sizing early. It keeps conviction from turning into ruin."},
+ P:{n:"The Player",s:"Thrill and speed",d:"You love momentum, action and the fast move. Markets are a game to you.",fit:"Our trading competitions and short-term strategy challenges.",tip:"Channel the energy into rules and stop-losses, and the thrill becomes a strategy."}
+};
+/* ===== end of unchanged content ===== */
+
+const app=document.getElementById('app');
+const U=ATC.ui, user=ATC.requireUser();
+if (ATC.hasCompletedGame('trader')) {
+  app.innerHTML = `<h1 class="${U.h1}">Already <span class="hl">done</span></h1>
+    <p class="lead">This device has already completed the trader assessment in the last 24 hours.</p>
+    <button class="${U.ghost}" onclick="ATC.menu()">Back to start</button>`;
+} else {
+let i=0,sc={G:0,R:0,P:0},fin=0,it=0;
+
+function q(){
+ const total=P.length+K.length;
+ if(i>=total){return result();}
+ const isP=i<P.length, item=isP?P[i]:K[i-P.length];
+ const opts=isP?item.a.map((o,n)=>`<button class="${U.opt}" onclick="pick(${n})">${o[0]}</button>`)
+              :item.a.map((o,n)=>`<button class="${U.opt}" onclick="pick(${n})">${o}</button>`);
+ app.innerHTML=`${U.progress(i,total)}
+ <p class="${U.step}">${isP?'Part 1 · Your trading personality':'Part 2 · Quick knowledge check'} · ${i+1} of ${total}</p>
+ <h2 class="${U.h2}">${item.q}</h2>${opts.join('')}`;
+}
+function pick(n){
+ if(i<P.length){sc[P[i].a[n][1]]++;}
+ else{const k=K[i-P.length]; if(n===k.r){k.c==="F"?fin++:it++;}}
+ i++;q();
+}
+function result(){
+ const order=["R","G","P"];
+ const key=order.reduce((a,b)=>sc[b]>sc[a]?b:a,"R");
+ const t=TYPES[key];
+ let side,partner;
+ if(fin>=2&&it>=2){side="Both worlds";partner="You can bridge finance and tech on your own. Great mentor material for the club.";}
+ else if(fin>it){side="Finance-leaning";partner="We'll pair you with a tech member so you learn to build what you already understand.";}
+ else if(it>fin){side="Tech-leaning";partner="We'll pair you with a finance member so you learn what your code should actually trade.";}
+ else{side="Fresh start";partner="Perfect. Most of our members start from zero, and we begin with the basics.";}
+ app.innerHTML=`<span class="${U.tagGold}">YOUR TRADER TYPE</span>
+ <h1 class="${U.h1}">${t.n}</h1>
+ <p class="body-copy"><strong>${t.s}</strong></p>
+ <p class="body-copy">${t.d}</p>
+ <div class="${U.stats}">${U.stat([fin+'/3','FINANCE'])}${U.stat([it+'/3','TECH'])}</div>
+ <span class="${U.tagGreen}">${side.toUpperCase()}</span>
+ ${U.box('Your match in the club',partner,true)}
+ ${U.box("Where you'd shine",t.fit)}
+ ${U.box('Our tip for you',t.tip)}
+ <p class="footer-note">Scan the sign-up code at our stand to join the Algorithmic Trading Club.</p>
+ ${U.actions()}`;
+ ATC.markCompletedGame('trader');
+ ATC.send({
+  type:'result',
+  name:user.name,email:user.email,education:user.education,motivation:user.motivation || '',
+  deviceId: ATC.deviceId(),
+  staffCode: localStorage.getItem('atc_staff_override') === '1' ? 'ATC-STAFF-2026' : '',
+  game:'trader',field:'',
+  score:fin+it,total:6,result:t.n+' · '+side,
+  details:`Finance ${fin}/3, Tech ${it}/3, Guardian ${sc.G}, Risk Taker ${sc.R}, Player ${sc.P}`
+ });
+}
+q();
+}
+</script>
+</body>
+</html>

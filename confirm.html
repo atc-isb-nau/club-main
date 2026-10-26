@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0a1">
+  <meta name="description" content="Confirm your university email to join the official ATC ISB WhatsApp group.">
+  <title>Confirm your university email | ATC ISB</title>
+  <link rel="stylesheet" href="assets/css/theme.css">
+</head>
+<body>
+  <div class="site-body">
+    <main class="page-shell">
+      <div class="brand" aria-label="Algorithmic Trading Club">
+        <span class="brand-mark" aria-hidden="true">ATC</span>
+        <span>ALGORITHMIC TRADING CLUB · ISB</span>
+      </div>
+
+      <section class="app-card" aria-labelledby="page-title">
+        <p class="eyebrow" data-i18n="eyebrow">MEMBERSHIP CONFIRMATION</p>
+        <h1 id="page-title" data-i18n="title">Confirm your university email.</h1>
+        <p class="lead" data-i18n="lead">Enter your ISB or IIT university email to continue to the official ATC WhatsApp group.</p>
+
+        <div class="notice" data-i18n="notice">
+          WhatsApp group access is intended for university members. Use your university email address, not a personal Gmail or Outlook address.
+        </div>
+
+        <form id="email-form" class="form-stack" novalidate>
+          <label class="field-label" for="university-email" data-i18n="emailLabel">University email address</label>
+          <input class="field-control" id="university-email" name="email" type="email" inputmode="email"
+                 autocomplete="email" autocapitalize="none" spellcheck="false"
+                 placeholder="name@university.tn" required aria-describedby="email-help">
+          <p id="email-help" class="small-note" data-i18n="emailHelp">We make a best-effort check based on the email domain. If your university uses a domain that doesn't include “ISB” or “IIT”, contact the club board.</p>
+
+          <div class="hp-field" aria-hidden="true">
+            <label for="website">Leave this field empty</label>
+            <input id="website" name="website" type="text" tabindex="-1" autocomplete="off">
+          </div>
+
+          <button id="submit-button" class="primary-button" type="submit" data-i18n="submit">Confirm email and continue</button>
+        </form>
+
+        <div id="status" class="message hidden" role="status" aria-live="polite"></div>
+
+        <section id="success-panel" class="hidden" aria-labelledby="success-title">
+          <h2 id="success-title" data-i18n="successTitle" style="margin:24px 0 8px;font-size:26px">You're all set.</h2>
+          <p id="success-copy" class="lead" data-i18n="successCopy">Your email has been recorded. Use the button below to open the WhatsApp group.</p>
+
+          <!-- No href is ever written here: the URL only lives in a JS closure. -->
+          <a id="group-link" class="group-link hidden" href="#" role="button"
+             data-i18n="groupButton" draggable="false"
+             style="cursor:pointer;-webkit-user-select:none;user-select:none;">Open ATC WhatsApp group</a>
+
+          <p class="small-note" data-i18n="shareNote">Please don't share the group invitation. Group access is for confirmed university members only.</p>
+        </section>
+      </section>
+
+      <p class="footer" data-i18n="footer">ATC ISB · Algorithmic Trading Club</p>
+      <p class="footer" style="margin-top: -25px;">For help contact <b>HR·</b><a style="color:var(--muted);" info="click me" href="mailto:amelzaweili@gmail.com?subject=ATC%20Membership%20Help"> Amal</a> </p>
+    </main>
+  </div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ==================================================================
+     1. CONFIG
+     ================================================================== */
+
+  // Paste your Apps Script Web App URL (ends with /exec)
+  var ENDPOINT = "https://script.google.com/macros/s/AKfycbyPFo17z56Yj5vb6O59NjX5oSDUAquJQHLajfiZNL3QO1dSFY9ooXcIxaa3bcjZ4a-N_A/exec"
+  // Must be identical to LINK_KEY in uni.gs
+  var LINK_KEY = "atc-isb-2026";
+
+  /* ==================================================================
+     2. TRANSLATIONS
+     ================================================================== */
+
+  var translations = {
+    en: {
+      eyebrow: "MEMBERSHIP CONFIRMATION",
+      title: "Confirm your university email.",
+      lead: "Enter your ISB or IIT university email to continue to the official ATC WhatsApp group.",
+      notice: "WhatsApp group access is intended for university members. Use your university email address, not a personal Gmail or Outlook address.",
+      emailLabel: "University email address",
+      emailHelp: "We make a best-effort check based on the email domain. If your university uses a domain that doesn't include “ISB” or “IIT”, contact the club board.",
+      submit: "Confirm email and continue",
+      submitting: "Submitting…",
+      successTitle: "You're all set.",
+      successCopy: "Your email has been recorded. Use the button below to open the WhatsApp group.",
+      groupButton: "Open ATC WhatsApp group",
+      shareNote: "Please don't share the group invitation. Group access is for confirmed university members only.",
+      footer: "ATC ISB · Algorithmic Trading Club",
+      invalid: "Enter a valid university email address.",
+      domain: "We couldn't identify “ISB” or “IIT” in your email domain. Check the address or contact the club board if this is your official university email.",
+      rate: "Too many attempts from this address. Please try again later.",
+      failed: "We couldn't submit your email right now. Please try again in a moment.",
+      noGroup: "Your email was saved, but the WhatsApp group link is not configured yet. Please contact the club board.",
+      recorded: "Email recorded.",
+      already: "This email was already recorded."
+    },
+    fr: {
+      eyebrow: "CONFIRMATION D’ADHÉSION",
+      title: "Confirmez votre e-mail universitaire.",
+      lead: "Saisissez votre adresse universitaire ISB ou IIT pour accéder au groupe WhatsApp officiel de l’ATC.",
+      notice: "L’accès au groupe WhatsApp est réservé aux membres universitaires. Utilisez votre adresse universitaire, et non une adresse Gmail ou Outlook personnelle.",
+      emailLabel: "Adresse e-mail universitaire",
+      emailHelp: "La vérification du domaine est indicative. Si le domaine de votre université ne contient pas « ISB » ou « IIT », contactez le bureau du club.",
+      submit: "Confirmer l’e-mail et continuer",
+      submitting: "Envoi en cours…",
+      successTitle: "C’est fait.",
+      successCopy: "Votre adresse a été enregistrée. Utilisez le bouton ci-dessous pour ouvrir le groupe WhatsApp.",
+      groupButton: "Ouvrir le groupe WhatsApp ATC",
+      shareNote: "Merci de ne pas partager le lien d’invitation. L’accès est réservé aux membres universitaires confirmés.",
+      footer: "ATC ISB · Algorithmic Trading Club",
+      invalid: "Saisissez une adresse e-mail universitaire valide.",
+      domain: "Nous n’avons pas identifié « ISB » ou « IIT » dans le domaine de votre adresse. Vérifiez l’adresse ou contactez le bureau du club si c’est bien votre e-mail universitaire.",
+      rate: "Trop de tentatives depuis cette adresse. Réessayez plus tard.",
+      failed: "Impossible d’envoyer votre adresse pour le moment. Réessayez dans un instant.",
+      noGroup: "Votre adresse a été enregistrée, mais le lien WhatsApp n’est pas encore configuré. Contactez le bureau du club.",
+      recorded: "Adresse enregistrée.",
+      already: "Cette adresse a déjà été enregistrée."
+    },
+    ar: {
+      eyebrow: "تأكيد العضوية",
+      title: "أكّد بريدك الإلكتروني الجامعي.",
+      lead: "أدخل بريدك الجامعي التابع لـ ISB أو IIT للانتقال إلى مجموعة ATC الرسمية على واتساب.",
+      notice: "الدخول إلى مجموعة واتساب مخصّص لأعضاء الجامعة. استخدم بريدك الجامعي وليس بريد Gmail أو Outlook شخصيًا.",
+      emailLabel: "البريد الإلكتروني الجامعي",
+      emailHelp: "نتحقق من النطاق بشكل مبدئي. إذا كان نطاق جامعتك لا يحتوي على «ISB» أو «IIT»، يُرجى التواصل مع إدارة النادي.",
+      submit: "تأكيد البريد والمتابعة",
+      submitting: "جارٍ الإرسال…",
+      successTitle: "تم بنجاح.",
+      successCopy: "تم تسجيل بريدك الإلكتروني. استخدم الزر أدناه لفتح مجموعة واتساب.",
+      groupButton: "فتح مجموعة ATC على واتساب",
+      shareNote: "يرجى عدم مشاركة رابط الدعوة. الدخول مخصّص للأعضاء الجامعيين الذين أكدوا بريدهم.",
+      footer: "ATC ISB · نادي التداول الخوارزمي",
+      invalid: "أدخل عنوان بريد جامعي صحيحًا.",
+      domain: "لم نتمكن من العثور على «ISB» أو «IIT» في نطاق بريدك. تحقق من العنوان أو تواصل مع إدارة النادي إذا كان هذا بريدك الجامعي الرسمي.",
+      rate: "محاولات كثيرة من هذا العنوان. يُرجى المحاولة لاحقًا.",
+      failed: "تعذّر إرسال بريدك الآن. حاول مرة أخرى بعد قليل.",
+      noGroup: "تم حفظ بريدك، لكن رابط مجموعة واتساب لم يُضبط بعد. يُرجى التواصل مع إدارة النادي.",
+      recorded: "تم تسجيل البريد الإلكتروني.",
+      already: "تم تسجيل هذا البريد مسبقًا."
+    }
+  };
+
+  /* ==================================================================
+     3. LANGUAGE BOOTSTRAP
+     ================================================================== */
+
+  var supported = ["ar", "fr", "en"];
+  var browserLanguages = (navigator.languages && navigator.languages.length)
+    ? navigator.languages : [navigator.language || "en"];
+  var firstSupported = browserLanguages
+    .map(function (x) { return String(x).toLowerCase().split("-")[0]; })
+    .find(function (x) { return supported.indexOf(x) !== -1; });
+  var lang = firstSupported || "en";
+  var t = translations[lang];
+
+  document.documentElement.lang = lang;
+  document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
+  document.title = lang === "ar" ? "تأكيد البريد الجامعي | ATC ISB" :
+                   lang === "fr" ? "Confirmez votre e-mail universitaire | ATC ISB" :
+                   "Confirm your university email | ATC ISB";
+
+  Array.prototype.forEach.call(document.querySelectorAll("[data-i18n]"), function (el) {
+    var key = el.getAttribute("data-i18n");
+    if (t[key]) el.textContent = t[key];
+  });
+
+  /* ==================================================================
+     4. ELEMENTS
+     ================================================================== */
+
+  var form = document.getElementById("email-form");
+  var emailInput = document.getElementById("university-email");
+  var submitButton = document.getElementById("submit-button");
+  var status = document.getElementById("status");
+  var successPanel = document.getElementById("success-panel");
+  var successCopy = document.getElementById("success-copy");
+  var groupLink = document.getElementById("group-link");
+  var honeypot = document.getElementById("website");
+
+  // The group URL lives ONLY here, in memory. It is never written to the DOM.
+  var savedGroupUrl = null;
+
+  function showMessage(message, type) {
+    status.textContent = message;
+    status.className = "message " + type;
+  }
+
+  /* ==================================================================
+     5. LINK DE-OBFUSCATION (must mirror encodeLink_() in uni.gs)
+     ================================================================== */
+
+  function decodeLink(token) {
+    var raw = atob(token);
+    var bytes = new Uint8Array(raw.length);
+    for (var i = 0; i < raw.length; i++) bytes[i] = raw.charCodeAt(i);
+    for (var j = 0; j < bytes.length; j++) {
+      bytes[j] = bytes[j] ^ LINK_KEY.charCodeAt(j % LINK_KEY.length);
+    }
+    return new TextDecoder("utf-8").decode(bytes);
+  }
+
+  /* ==================================================================
+     6. SUBMIT
+     ================================================================== */
+
+  form.addEventListener("submit", function (event) {
+    event.preventDefault();
+    status.className = "message hidden";
+
+    var email = emailInput.value.trim().toLowerCase();
+
+    if (!emailInput.checkValidity() || !email) {
+      showMessage(t.invalid, "error");
+      emailInput.focus();
+      return;
+    }
+
+    submitButton.disabled = true;
+    submitButton.textContent = t.submitting;
+
+    // NOTE: "text/plain" keeps this a *simple* CORS request, so the browser
+    // does not send a preflight OPTIONS — which Apps Script cannot answer.
+    fetch(ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify({
+        email: email,
+        language: lang,
+        website: honeypot ? honeypot.value : ""
+      }),
+      redirect: "follow"
+    })
+      .then(function (response) {
+        if (!response.ok) throw new Error("HTTP " + response.status);
+        return response.json();
+      })
+      .then(function (result) {
+        submitButton.disabled = false;
+        submitButton.textContent = t.submit;
+
+        if (!result || !result.ok) {
+          var code = result && result.code;
+          if (code === "DOMAIN") showMessage(t.domain, "error");
+          else if (code === "RATE") showMessage(t.rate, "error");
+          else if (code === "INVALID") showMessage(t.invalid, "error");
+          else showMessage(t.failed, "error");
+          return;
+        }
+
+        form.classList.add("hidden");
+        successPanel.classList.remove("hidden");
+
+        if (result.token) {
+          try {
+            savedGroupUrl = decodeLink(result.token);
+            groupLink.classList.remove("hidden");
+          } catch (err) {
+            savedGroupUrl = null;
+          }
+        }
+
+        if (!savedGroupUrl) {
+          groupLink.classList.add("hidden");
+          successCopy.textContent = t.noGroup;
+        }
+
+        showMessage(result.existing ? t.already : t.recorded, "success");
+      })
+      .catch(function () {
+        submitButton.disabled = false;
+        submitButton.textContent = t.submit;
+        showMessage(t.failed, "error");
+      });
+  });
+
+  /* ==================================================================
+     7. HARDENED GROUP BUTTON
+     The <a> has href="#" forever, so "Copy link address" copies nothing
+     useful. The real URL is only used at click time, programmatically.
+     ================================================================== */
+
+  groupLink.addEventListener("click", function (event) {
+    event.preventDefault();
+    event.stopPropagation();
+    if (!savedGroupUrl) return;
+
+    var win = window.open(savedGroupUrl, "_blank", "noopener,noreferrer");
+    if (!win) window.location.href = savedGroupUrl; // popup blocked fallback
+  });
+
+  groupLink.addEventListener("contextmenu", function (e) { e.preventDefault(); });
+  groupLink.addEventListener("dragstart", function (e) { e.preventDefault(); });
+  groupLink.addEventListener("mousedown", function (e) { e.preventDefault(); });
+  groupLink.addEventListener("copy", function (e) { e.preventDefault(); });
+
+  // Extra safety: wipe the in-memory link when the tab is hidden for good.
+  window.addEventListener("pagehide", function () { savedGroupUrl = null; });
+})();
+</script>
+</body>
+</html>

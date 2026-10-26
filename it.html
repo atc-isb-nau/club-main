@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>IT in Trading — Algorithmic Trading Club</title>
+<meta name="description" content="Test your IT knowledge in trading with 9 quick questions from the Algorithmic Trading Club.">
+<meta name="robots" content="index, follow">
+<meta name="theme-color" content="#f4f1ea">
+<link rel="stylesheet" href="assets/css/theme.css">
+</head>
+<body class="site-body">
+<main class="page-shell">
+  <div class="brand"><span class="brand-mark" aria-hidden="true">ATC</span><span>Algorithmic Trading Club</span></div>
+  <div id="app" class="app-card app-content"></div>
+</main>
+
+<script src="assets/js/config.js"></script>
+<script src="assets/js/common.js"></script>
+<script>
+ATC.quiz({
+  field: 'IT',
+  tag: 'YOUR IT LEVEL',
+  kicker: 'IT in trading',
+  questions: [
+    {q:'What is an algorithm?',
+     a:['A step-by-step set of instructions to solve a problem','A type of computer chip','A programming error','A stock market index'], r:0},
+    {q:'In Python, which structure is best for an ordered series of prices like [101, 103, 99]?',
+     a:['A list','A boolean','A comment','A function name'], r:0},
+    {q:'If prices = [101, 103, 99], what does prices[-1] return?',
+     a:['101','103','99','An error'], r:2},
+    {q:'What is a 5-day moving average?',
+     a:['The highest price of the last 5 days','The average of the latest 5 prices, updated every day','The price 5 days ago','Five times the current price'], r:1},
+    {q:'Which Python library is the standard for working with tables of data (DataFrames)?',
+     a:['pandas','turtle','pygame','tkinter'], r:0},
+    {q:'What does df["close"].pct_change() calculate?',
+     a:['The total of all closing prices','The percentage change from one row to the next','The highest closing price','The number of rows in the table'], r:1},
+    {q:'Your price data has missing values (NaN). What is a sensible first step?',
+     a:['Ignore them and run the strategy','Inspect them, then fill or drop them on purpose','Delete the whole dataset','Replace every price with 0'], r:1},
+    {q:'What is backtesting?',
+     a:['Running a strategy on past data to see how it would have performed','Testing a computer for viruses','Placing live trades with real money','Copying another trader'], r:0},
+    {q:'The rule “if price is above the average, buy; otherwise, wait” is an example of...',
+     a:['Conditional (if/else) logic','A syntax error','A database query','Image processing'], r:0}
+  ],
+  levels: [
+    {min:0, name:'Code Curious',
+     desc:'You are at the start of the coding side of trading, and that is exactly where most of our members begin.',
+     next:'Join our first Python session: lists, loops and a simple price series.'},
+    {min:4, name:'Code Builder',
+     desc:'You understand the core ideas. With some practice you will be writing small strategies yourself.',
+     next:'Try loading price data with pandas and plotting a moving average.'},
+    {min:7, name:'Quant Coder',
+     desc:'You are comfortable with algorithms and data handling. You are ready to build and test strategies.',
+     next:'Team up with a business member and backtest a strategy built on their market ideas.'}
+  ]
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Business in Trading — Algorithmic Trading Club</title>
+<meta name="description" content="Test your business knowledge in trading with 9 quick questions from the Algorithmic Trading Club.">
+<meta name="robots" content="index, follow">
+<meta name="theme-color" content="#f4f1ea">
+<link rel="stylesheet" href="assets/css/theme.css">
+</head>
+<body class="site-body">
+<main class="page-shell">
+  <div class="brand"><span class="brand-mark" aria-hidden="true">ATC</span><span>Algorithmic Trading Club</span></div>
+  <div id="app" class="app-card app-content"></div>
+</main>
+
+<script src="assets/js/config.js"></script>
+<script src="assets/js/common.js"></script>
+<script>
+ATC.quiz({
+  field: 'Business',
+  tag: 'YOUR BUSINESS LEVEL',
+  kicker: 'Business in trading',
+  questions: [
+    {q:'What does owning a share of a company mean?',
+     a:['You own a small part of that company','You have lent the company money','You work for the company','You are guaranteed a yearly payment'], r:0},
+    {q:'What does a broker do?',
+     a:['Sets the price of every stock','Places buy and sell orders for you on the market','Guarantees that you will make a profit','Writes the news about companies'], r:1},
+    {q:'What is a stock exchange?',
+     a:['A bank that gives loans to traders','A marketplace where buyers and sellers trade shares','A government office that picks winning companies','A website that gives investing tips'], r:1},
+    {q:'What is a limit order?',
+     a:['An order that buys at any price right now','An order that only runs at your chosen price or better','An order that can be placed once a year','An order that the broker pays for'], r:1},
+    {q:'What does a stop-loss do?',
+     a:['Stops the market from falling','Closes your trade automatically at a set price to cap your loss','Doubles your position when the price drops','Blocks you from trading for a day'], r:1},
+    {q:'What does volatility describe?',
+     a:['How much and how fast a price moves','The number of companies on an exchange','The fee a broker charges','The age of a company'], r:0},
+    {q:'What does liquidity mean?',
+     a:['How much money a company earns','How easily you can buy or sell without moving the price','How old an asset is','How many shares a company has printed'], r:1},
+    {q:'What is an ETF?',
+     a:['A single company’s share','A basket of assets that trades like one stock','A loan from a broker','A type of savings account'], r:1},
+    {q:'In general, higher potential return comes with...',
+     a:['Lower risk','Higher risk','No risk at all','A guaranteed profit'], r:1}
+  ],
+  levels: [
+    {min:0, name:'Market Newcomer',
+     desc:'You are at the very start, which is a great place to be. Everyone in the club began with these words.',
+     next:'Join our beginner sessions on how markets, brokers and orders work.'},
+    {min:4, name:'Market Aware',
+     desc:'You know the vocabulary and the logic behind it. A few concepts will turn this into real confidence.',
+     next:'Practise placing paper trades and reading simple risk and return numbers.'},
+    {min:7, name:'Market Ready',
+     desc:'You have solid basics. You can follow a trading discussion and ask the right questions.',
+     next:'Team up with an IT member and turn your market knowledge into a strategy they can code.'}
+  ]
+});
+</script>
+</body>
+</html>

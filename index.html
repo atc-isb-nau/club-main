@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Algorithmic Trading Club | Learn Trading, Finance & Technology</title>
+<meta name="description" content="Join the Algorithmic Trading Club to explore finance, algorithmic trading, Python, markets and technology through practical student activities.">
+<meta name="robots" content="index, follow">
+<meta name="theme-color" content="#f4f1ea">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Algorithmic Trading Club">
+<meta property="og:description" content="A student club connecting finance, business and technology through algorithmic trading.">
+<meta property="og:site_name" content="Algorithmic Trading Club">
+<meta name="twitter:card" content="summary">
+<link rel="canonical" href="./index.html">
+<link rel="stylesheet" href="assets/css/theme.css">
+</head>
+<body class="site-body">
+<main class="page-shell">
+  <div class="brand"><span class="brand-mark" aria-hidden="true">ATC</span><span>Algorithmic Trading Club</span></div>
+  <section id="landingIntro" class="landing-intro" aria-labelledby="landing-title">
+    <p class="eyebrow">Student-led · Finance × Technology</p>
+    <h1 id="landing-title">Build your edge, <span class="hl">together.</span></h1>
+    <p>Explore markets, business and code with students who are curious about how trading really works.</p>
+    <ul class="landing-points">
+      <li>Short assessments to find your starting point</li>
+      <li>Beginner-friendly, practical and collaborative</li>
+      <li>Open to business, IT, engineering and master’s students</li>
+    </ul>
+  </section>
+  <div id="app" class="app-card app-content"></div>
+</main>
+
+<script src="assets/js/config.js"></script>
+<script src="assets/js/common.js"></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "EducationalOrganization",
+  "name": "Algorithmic Trading Club",
+  "description": "A student club connecting finance, business and technology through algorithmic trading.",
+  "audience": {
+    "@type": "EducationalAudience",
+    "educationalRole": "student"
+  }
+}
+</script>
+<script>
+const app = document.getElementById('app');
+const U = ATC.ui, esc = ATC.esc;
+const landingIntro = document.getElementById('landingIntro');
+function showLandingIntro(show){ landingIntro.classList.toggle('hidden', !show); }
+
+/* Step 1: who are you */
+function welcome(){
+  showLandingIntro(true);
+  const staffOn = ATC.isStaffOverrideActive();
+  app.innerHTML = `
+    <h1 class="${U.h1}">Welcome to the <span class="hl">club</span></h1>
+    <p class="lead">Tell us who you are, then pick a quick game. It takes about 3 minutes.</p>
+    <form id="f" class="form-stack" novalidate>
+      <label><span class="${U.label}">Full name</span>
+        <input id="name" type="text" required autocomplete="name" class="${U.input}"></label>
+      <label><span class="${U.label}">University level</span>
+        <select id="edu" required class="${U.input}">
+          <option value="" disabled selected>Choose your level</option>
+          <option value="other">Not listed — write mine</option>
+          <option>University, first year</option>
+          <option>University, second year</option>
+          <option>University, third year or later</option>
+          <option>Engineering student</option>
+          <option>Master's — IT</option>
+          <option>Master's — Business</option>
+        </select></label>
+      <label id="customEduWrap" class="hidden"><span class="${U.label}">Write your level</span>
+        <input id="customEdu" type="text" maxlength="100" class="${U.input}" placeholder="For example: 2nd-year engineering"></label>
+      <label><span class="${U.label}">Email</span>
+        <input id="email" type="email" required autocomplete="email" inputmode="email" class="${U.input}"></label>
+      ${staffOn
+        ? `<p class="staff-active">Staff mode is on for this device. <button type="button" id="staffOff" class="staff-toggle">Turn off</button></p>`
+        : `<details class="staff-access">
+            <summary>Staff access</summary>
+            <label><span class="${U.label}">Override code</span>
+              <input id="staffCode" type="password" autocomplete="off" class="${U.input}" placeholder="For club staff devices"></label>
+          </details>`}
+      <label><span class="${U.label}">Why do you want to join us? <span class="optional">(optional)</span></span>
+        <textarea id="motivation" rows="3" maxlength="500" class="${U.input}" placeholder="Tell us what interests you about the club"></textarea></label>
+      <p id="err" class="hidden error-message"></p>
+      <button type="submit" class="${U.primary}">Continue</button>
+    </form>`;
+
+  const edu = document.getElementById('edu');
+  const customEduWrap = document.getElementById('customEduWrap');
+  edu.addEventListener('change', () => {
+    const custom = edu.value === 'other';
+    customEduWrap.classList.toggle('hidden', !custom);
+    document.getElementById('customEdu').required = custom;
+    if (custom) document.getElementById('customEdu').focus();
+  });
+
+  if (staffOn) {
+    document.getElementById('staffOff').addEventListener('click', () => {
+      ATC.deactivateStaffOverride();
+      welcome();
+    });
+  } else {
+    const staffInput = document.getElementById('staffCode');
+    staffInput.addEventListener('change', () => {
+      if (staffInput.value.trim() && ATC.activateStaffOverride(staffInput.value)) {
+        const details = staffInput.closest('.staff-access');
+        const notice = document.createElement('p');
+        notice.className = 'staff-active';
+        notice.innerHTML = 'Staff mode is on for this device. <button type="button" id="staffOff" class="staff-toggle">Turn off</button>';
+        details.replaceWith(notice);
+        notice.querySelector('#staffOff').addEventListener('click', () => {
+          ATC.deactivateStaffOverride();
+          welcome();
+        });
+      }
+    });
+  }
+
+  document.getElementById('f').addEventListener('submit', onSubmit);
+}
+
+async function onSubmit(e){
+  e.preventDefault();
+  const name = document.getElementById('name').value.trim();
+  const selectedEducation = document.getElementById('edu').value;
+  const customEducation = document.getElementById('customEdu').value.trim();
+  const education = selectedEducation === 'other' ? customEducation : selectedEducation;
+  const email = document.getElementById('email').value.trim();
+  const motivation = document.getElementById('motivation').value.trim();
+  const err = document.getElementById('err');
+  err.classList.add('hidden');
+
+  const typedStaffCode = (document.getElementById('staffCode')?.value || '').trim();
+
+  const ok = name && education && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  if(!ok){
+    err.textContent = !name ? 'Enter your name.' : !education ? 'Choose or write your education level.' : 'Enter a valid email address.';
+    err.classList.remove('hidden');
+    return;
+  }
+
+  if (!ATC.isStaffOverrideActive() && typedStaffCode) {
+    if (!ATC.activateStaffOverride(typedStaffCode)) {
+      err.textContent = 'That staff override code is not valid.';
+      err.classList.remove('hidden');
+      return;
+    }
+  }
+
+  const limit = ATC.checkLimit('signup', 'sign-up');
+  if (!limit.allowed) {
+    err.textContent = limit.message;
+    err.classList.remove('hidden');
+    return;
+  }
+
+  const btn = document.querySelector('#f button[type="submit"]');
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = ATC.ui.spinner('sm') + ' <span style="vertical-align:middle">Saving…</span>';
+  }
+  ATC.showLoading('Saving your details…');
+
+  const staffCodeForServer = ATC.isStaffOverrideActive() ? 'ATC-STAFF-2026' : '';
+
+  const user = { name, education, email, motivation };
+  ATC.setUser(user);
+  const result = await ATC.send({ type: 'signup', ...user, deviceId: ATC.deviceId(), staffCode: staffCodeForServer });
+
+  if (result && result.ok === false) {
+    ATC.hideLoading();
+    if (btn) { btn.disabled = false; btn.textContent = 'Continue'; }
+    err.textContent = result.error || 'Signup failed. Please try again.';
+    err.classList.remove('hidden');
+    return;
+  }
+  ATC.hideLoading();
+  menu();
+}
+
+/* Step 2: choose a game */
+function menu(){
+  showLandingIntro(false);
+  const u = ATC.getUser();
+  const bizDone = ATC.hasCompletedGame('knowledge-business');
+  const itDone  = ATC.hasCompletedGame('knowledge-it');
+  const knowledgeDone = bizDone && itDone;
+  const traderDone = ATC.hasCompletedGame('trader');
+  const noGamesLeft = knowledgeDone && traderDone;
+
+  if (noGamesLeft) {
+    app.innerHTML = ATC.ui.emptyState(
+      'All done for today',
+      "You've completed both games on this device in the last 24 hours. Thanks for playing — come back tomorrow, or ask a staff member for a reset.",
+      `<button class="${U.ghost}" data-go="restart">Next visitor</button>`
+    );
+  } else {
+    let buttons = '';
+    if (!knowledgeDone) {
+      const remainingNote = (bizDone || itDone) ? ' One field left today.' : '';
+      buttons += `<button class="${U.opt}" data-go="knowledge">
+        <b class="option-title">Knowledge level assessment</b>
+        <span class="option-copy">9 questions. You choose Business or IT, we show your level.${remainingNote}</span>
+      </button>`;
+    }
+    if (!traderDone) {
+      buttons += `<button class="${U.opt}" data-go="trader">
+        <b class="option-title">Trader type assessment</b>
+        <span class="option-copy">12 questions. Find your trading personality and your place between finance and tech.</span>
+      </button>`;
+    }
+    app.innerHTML = `<h1 class="${U.h1}">Hi ${esc(u.name.split(' ')[0])}, pick a <span class="hl">game</span></h1>
+      <p class="lead">Do one or do both.</p>
+      ${buttons}
+      <button class="${U.ghost}" data-go="restart">Not you? Start over</button>`;
+  }
+
+  app.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => {
+    const g = b.dataset.go;
+    if (g === 'knowledge') { field(); }
+    else if (g === 'trader') { location.href = 'level.html'; }
+    else { ATC.clearUser(); welcome(); }
+  }));
+}
+
+/* Step 3 (knowledge game only): choose a field */
+function field(){
+  showLandingIntro(false);
+  const bizDone = ATC.hasCompletedGame('knowledge-business');
+  const itDone  = ATC.hasCompletedGame('knowledge-it');
+  app.innerHTML = `
+    <h1 class="${U.h1}">Which <span class="hl">field</span>?</h1>
+    <p class="lead">Pick the side you want to test. You can come back for the other one.</p>
+    <button class="${U.opt}" data-go="business.html">
+      <b class="option-title">Business in trading${bizDone ? ' ✓' : ''}</b>
+      <span class="option-copy">Markets, brokers, orders, risk and return.${bizDone ? ' Already done today.' : ''}</span>
+    </button>
+    <button class="${U.opt}" data-go="it.html">
+      <b class="option-title">IT in trading${itDone ? ' ✓' : ''}</b>
+      <span class="option-copy">Algorithms, Python and working with data.${itDone ? ' Already done today.' : ''}</span>
+    </button>
+    <button class="${U.ghost}" id="back">Back</button>`;
+  app.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => { location.href = b.dataset.go; }));
+  document.getElementById('back').addEventListener('click', menu);
+}
+
+ATC.getUser() ? menu() : welcome();
+</script>
+</body>
+</html>

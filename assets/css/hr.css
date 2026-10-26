@@ -1,0 +1,274 @@
+/* ================================================================
+   HR page — layered on top of admin.css (which supplies the shell).
+   Adds: tabs, members grid, compose form, invoice badge colours.
+   ================================================================ */
+
+/* ──────── TABS ──────── */
+.hr-tabs {
+  display: flex;
+  gap: 0;
+  margin-top: 18px;
+  border-bottom: 1px solid var(--line);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.hr-tabs button {
+  flex: 0 0 auto;
+  padding: 11px 18px;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .12em;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: color .15s ease, border-color .15s ease;
+}
+.hr-tabs button:hover { color: var(--fg); }
+.hr-tabs button.active {
+  color: var(--fg);
+  border-bottom-color: var(--green);
+}
+
+.hr-panel { display: none; margin-top: 12px; }
+.hr-panel.active { display: block; }
+
+/* ──────── MEMBERS ──────── */
+.hr-search {
+  padding: 7px 10px;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  background: var(--btn);
+  color: var(--fg);
+  font-family: inherit;
+  font-size: 11px;
+  width: 100%;
+  max-width: 240px;
+}
+.hr-search:focus { outline: none; border-color: var(--green); }
+
+.members-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.member-card {
+  display: flex;
+  gap: 14px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--card);
+  transition: border-color .15s ease;
+}
+.member-card:hover { border-color: rgba(51, 209, 122, .4); }
+
+.avatar {
+  position: relative;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 1.5px solid currentColor;
+  background: rgba(255, 255, 255, .03);
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 800;
+  font-size: 15px;
+  letter-spacing: .04em;
+  overflow: hidden;
+}
+.avatar-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+.avatar-initials {
+  position: relative;
+  z-index: 1;
+}
+
+.member-body {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.member-name {
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: -.01em;
+  color: var(--fg);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.member-alias {
+  margin-left: 6px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 400;
+  font-style: italic;
+}
+.member-role {
+  display: inline-block;
+  align-self: flex-start;
+  padding: 2px 7px;
+  margin-bottom: 4px;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  color: var(--gold);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .1em;
+}
+.member-line {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 11px;
+  line-height: 1.5;
+  min-width: 0;
+}
+.member-line .key {
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .1em;
+  flex-shrink: 0;
+  width: 32px;
+}
+.member-line a,
+.member-line .link-btn {
+  color: var(--fg);
+  text-decoration: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: inherit;
+  font-size: 11px;
+}
+.member-line a:hover,
+.member-line .link-btn:hover { color: var(--green); }
+.member-line .link-btn {
+  padding: 0;
+  border: 0;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+}
+.member-line .muted { color: var(--muted); font-style: italic; }
+
+/* ──────── COMPOSE FORM ──────── */
+.hr-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.hr-custom {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px dashed var(--line);
+  border-radius: 4px;
+}
+.hr-custom.hidden { display: none; }
+@media (max-width: 640px) {
+  .hr-custom { grid-template-columns: 1fr; }
+}
+
+.hr-field { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.hr-label {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .12em;
+}
+.hr-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  background: var(--btn);
+  color: var(--fg);
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 1.5;
+  outline: none;
+  transition: border-color .15s ease;
+}
+.hr-input:focus { border-color: var(--green); }
+textarea.hr-input { resize: vertical; min-height: 120px; }
+select.hr-input { cursor: pointer; }
+
+.hr-invoice-box {
+  padding: 12px 14px 14px;
+  border: 1px dashed var(--line);
+  border-radius: 4px;
+  margin: 0;
+}
+.hr-invoice-box legend {
+  padding: 0 6px;
+  color: var(--gold);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .12em;
+}
+.hr-invoice-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.hr-invoice-grid .hr-field-wide { grid-column: span 2; }
+@media (max-width: 640px) {
+  .hr-invoice-grid { grid-template-columns: 1fr; }
+  .hr-invoice-grid .hr-field-wide { grid-column: span 1; }
+}
+
+.hr-compose-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.hr-send-btn {
+  padding: 12px 22px;
+  border: 0;
+  border-radius: 3px;
+  background: var(--green);
+  color: #04230f;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: .1em;
+  cursor: pointer;
+}
+.hr-send-btn:disabled { opacity: .6; cursor: wait; }
+.hr-send-btn .spinner {
+  display: inline-block;
+  vertical-align: -3px;
+  margin-right: 8px;
+}
+
+/* ──────── STATUS PILL COLOURS ──────── */
+.terminal-table .pill.red { background: rgba(255, 107, 107, .14); color: #ff9b9b; }
+.terminal-table .pill.gold { background: rgba(242, 169, 59, .14); color: var(--gold); }
+
+/* ──────── EMPTY-STATE IN PANELS ──────── */
+.hr-empty {
+  padding: 40px 20px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 11px;
+  letter-spacing: .14em;
+}

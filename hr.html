@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>ATC · HR</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&display=swap">
+<link rel="stylesheet" href="assets/css/theme.css">
+<link rel="stylesheet" href="assets/css/admin.css">
+<link rel="stylesheet" href="assets/css/hr.css">
+</head>
+<body class="admin-body">
+
+<!-- ──────── LOGIN ──────── -->
+<section id="login" class="admin-login">
+  <div class="login-box">
+    <div class="login-head">
+      <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+      <span class="login-title">atc@hr:~</span>
+    </div>
+    <form id="loginForm" autocomplete="off">
+      <p class="login-line"><span class="prompt">$</span> connect hr<span class="cursor">_</span></p>
+      <label class="login-label" for="pw">ACCESS CODE</label>
+      <input id="pw" type="password" placeholder="•••••••" autocomplete="off" autocapitalize="off" spellcheck="false" required>
+      <button type="submit">CONNECT ▸</button>
+      <p id="loginErr" class="login-err hidden"></p>
+    </form>
+  </div>
+</section>
+
+<!-- ──────── HR DASHBOARD ──────── -->
+<div id="dashboard" class="admin-dashboard hidden">
+
+  <header class="terminal-ticker">
+    <span class="ticker-brand">◆ ATC HR</span>
+    <span class="ticker-live"><span class="live-dot"></span>LIVE</span>
+    <span class="ticker-time" id="tickerTime">--:--:--</span>
+    <span class="ticker-spacer"></span>
+    <span class="ticker-msg" id="tickerMsg">SYNCED</span>
+    <button type="button" class="ticker-btn" id="refreshBtn">↻ REFRESH</button>
+    <button type="button" class="ticker-btn" id="logoutBtn">✕ EXIT</button>
+  </header>
+
+  <section class="kpi-strip" id="kpiStrip" aria-label="HR numbers"></section>
+
+  <nav class="hr-tabs" id="hrTabs">
+    <button data-tab="members"  class="active">MEMBERS</button>
+    <button data-tab="compose">COMPOSE</button>
+    <button data-tab="sent">SENT</button>
+    <button data-tab="invoices">INVOICES</button>
+  </nav>
+
+  <!-- MEMBERS -->
+  <section class="hr-panel active" data-panel="members">
+    <div class="panel">
+      <div class="panel-head">
+        <h3>CLUB BOARD</h3>
+        <input type="search" id="memberSearch" class="hr-search" placeholder="Search name or role…" autocomplete="off">
+      </div>
+      <div class="members-grid" id="membersGrid"></div>
+    </div>
+  </section>
+
+  <!-- COMPOSE -->
+  <section class="hr-panel" data-panel="compose">
+    <div class="panel">
+      <div class="panel-head">
+        <h3>NEW EMAIL</h3>
+        <span class="panel-tag" id="composeTag">MAILAPP</span>
+      </div>
+      <form id="composeForm" class="hr-form" autocomplete="off">
+        <label class="hr-field">
+          <span class="hr-label">TO</span>
+          <select id="toSelect" class="hr-input" required></select>
+        </label>
+        <div id="customToWrap" class="hr-custom hidden">
+          <label class="hr-field">
+            <span class="hr-label">CUSTOM EMAIL</span>
+            <input id="toCustomEmail" type="email" class="hr-input" placeholder="someone@example.com">
+          </label>
+          <label class="hr-field">
+            <span class="hr-label">CUSTOM NAME (optional)</span>
+            <input id="toCustomName" type="text" class="hr-input" placeholder="Their name">
+          </label>
+        </div>
+        <label class="hr-field">
+          <span class="hr-label">SUBJECT</span>
+          <input id="subject" type="text" class="hr-input" maxlength="200" required>
+        </label>
+        <label class="hr-field">
+          <span class="hr-label">BODY</span>
+          <textarea id="body" class="hr-input" rows="7" required></textarea>
+        </label>
+
+        <fieldset class="hr-invoice-box">
+          <legend>ATTACH INVOICE <span class="muted">(optional — leave amount at 0 for a plain email)</span></legend>
+          <div class="hr-invoice-grid">
+            <label class="hr-field">
+              <span class="hr-label">AMOUNT</span>
+              <input id="amount" type="number" min="0" step="0.01" placeholder="0.00" class="hr-input">
+            </label>
+            <label class="hr-field">
+              <span class="hr-label">CURRENCY</span>
+              <select id="currency" class="hr-input">
+                <option>TND</option><option>EUR</option><option>USD</option>
+              </select>
+            </label>
+            <label class="hr-field hr-field-wide">
+              <span class="hr-label">DESCRIPTION</span>
+              <input id="desc" type="text" maxlength="200" placeholder="Membership fee, event ticket, etc." class="hr-input">
+            </label>
+          </div>
+        </fieldset>
+
+        <p id="composeErr" class="login-err hidden"></p>
+        <div class="hr-compose-actions">
+          <button type="submit" class="hr-send-btn" id="sendBtn">SEND ▸</button>
+          <span id="sendStatus" class="status-pill hidden"></span>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- SENT -->
+  <section class="hr-panel" data-panel="sent">
+    <div class="panel">
+      <div class="panel-head">
+        <h3>SENT EMAILS</h3>
+        <span class="panel-tag" id="sentTag">—</span>
+      </div>
+      <div class="table-scroll"><table id="sentTable" class="terminal-table"></table></div>
+    </div>
+  </section>
+
+  <!-- INVOICES -->
+  <section class="hr-panel" data-panel="invoices">
+    <div class="panel">
+      <div class="panel-head">
+        <h3>INVOICES</h3>
+        <span class="panel-tag" id="invTag">—</span>
+      </div>
+      <div class="table-scroll"><table id="invTable" class="terminal-table"></table></div>
+    </div>
+  </section>
+
+</div>
+
+<script src="assets/js/config.js"></script>
+<script src="assets/js/hr.js"></script>
+</body>
+</html>

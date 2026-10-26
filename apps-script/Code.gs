@@ -5,19 +5,24 @@ const TABS = {
   Results: ['Timestamp', 'Name', 'Email', 'Education', 'Why they want to join', 'Game', 'Field', 'Score', 'Total', 'Result', 'Details']
 };
 
-function doPost(e) {
-  // ---- ROUTER: uni.gs handles payloads with no `type` field ----
-  var peek;
-  try { peek = JSON.parse(e.postData.contents); } catch (_) { peek = null; }
-  if (peek && typeof peek === "object" && !peek.type) {
-    return uniDoPost(e);
-  }
+function doGet(e) {
+  const params = (e && e.parameter) || {};
+  if (params.action === 'dashboard') return Dashboard_getData_(params.key);
+  if (params.action === 'hr')        return HR_getData_(params.key);
+  return json_({ ok: true, service: 'ATC club backend' });
+}
 
-  // ---- existing Code.gs logic, unchanged ----
+function doPost(e) {
   const lock = LockService.getScriptLock();
   lock.waitLock(10000);
   try {
     const d = JSON.parse(e.postData.contents);
+
+    // HR routes — key-authenticated, not visitor-rate-limited
+    if (d.type === 'hr_email')        return HR_sendEmail_(d);
+    if (d.type === 'hr_invoice_paid') return HR_markInvoicePaid_(d);
+
+    // ...rest of existing doPost (signup / result) unchanged...
     const now = new Date();
     const bypass = typeof d.staffCode === 'string' && VALID_STAFF_CODES.indexOf(d.staffCode.trim()) !== -1;
     const subtype = d.type === 'result'
@@ -48,23 +53,6 @@ function doPost(e) {
   } finally {
     lock.releaseLock();
   }
-}
-
-function doGet(e) {
-  var action = e && e.parameter && e.parameter.action;
-
-  // ---- uni.gs health check ----
-  if (action === 'uni' || action === 'health') {
-    return uniDoGet(e);
-  }
-
-  // ---- dashboard.gs was orphaned; give it a route ----
-  if (action === 'dashboard') {
-    return Dashboard_getData_(e.parameter.key);
-  }
-
-  // ---- default: Code.gs health check (unchanged behaviour) ----
-  return json_({ ok: true, service: 'ATC club backend' });
 }
 
 /**

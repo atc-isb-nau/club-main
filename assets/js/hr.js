@@ -87,6 +87,7 @@
   const refreshBtn   = $('refreshBtn');
   const logoutBtn    = $('logoutBtn');
   const sideNav      = $('sideNav');
+  const mobileNav    = $('mobileNav');
   const senderSelect = $('senderSelect');
   const senderHint   = $('senderHint');
   const sideKpis     = $('sideKpis');
@@ -131,6 +132,11 @@
   const closePreviewBtn   = $('closePreviewBtn');
   const closePreviewBtn2  = $('closePreviewBtn2');
   const sendFromPreviewBtn = $('sendFromPreviewBtn');
+  const senderSheet       = $('senderSheet');
+  const senderSheetList   = $('senderSheetList');
+  const sheetSenderHint   = $('sheetSenderHint');
+  const sheetKpis         = $('sheetKpis');
+  const sheetDraftState   = $('sheetDraftState');
 
   const state = {
     members: [],
@@ -254,13 +260,16 @@
 
   function initTabs() {
     switchTab(localStorage.getItem(TAB_STORAGE) || 'people');
-    sideNav.addEventListener('click', e => {
+    const handler = e => {
       const btn = e.target.closest('[data-tab]');
       if (btn) switchTab(btn.dataset.tab);
-    });
+    };
+    sideNav.addEventListener('click', handler);
+    if (mobileNav) mobileNav.addEventListener('click', handler);
   }
   function switchTab(name) {
     sideNav.querySelectorAll('[data-tab]').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
+    if (mobileNav) mobileNav.querySelectorAll('[data-tab]').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
     document.querySelectorAll('.dash-panel').forEach(p => p.classList.toggle('active', p.dataset.panel === name));
     localStorage.setItem(TAB_STORAGE, name);
     updateSelectionBar();
@@ -299,9 +308,42 @@
       else setSenderIdx(parseInt(senderSelect.value, 10));
       updateSenderHint();
       updateTickerSender();
+      renderSenderSheet();
     });
     updateSenderHint();
     updateTickerSender();
+
+    // Ticker chip → open sheet
+    if (tickerSender) tickerSender.addEventListener('click', openSenderSheet);
+
+    // Sheet close
+    document.querySelectorAll('[data-close-sheet]').forEach(el => {
+      el.addEventListener('click', closeSenderSheet);
+    });
+
+    // Sheet item click
+    if (senderSheetList) {
+      senderSheetList.addEventListener('click', e => {
+        const btn = e.target.closest('[data-sender-idx]');
+        if (!btn) return;
+        const idx = parseInt(btn.dataset.senderIdx, 10);
+        if (isNaN(idx)) return;
+        setSenderIdx(idx);
+        senderSelect.value = String(idx);
+        updateSenderHint();
+        updateTickerSender();
+        closeSenderSheet();
+      });
+    }
+
+    // Escape closes sheet
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && senderSheet && !senderSheet.classList.contains('hidden')) {
+        closeSenderSheet();
+      }
+    });
+
+    renderSenderSheet();
   }
   function updateSenderHint() {
     const s = getSender();
@@ -315,7 +357,36 @@
   }
   function updateTickerSender() {
     const s = getSender();
-    tickerSender.textContent = s ? ('AS · ' + s.name) : 'NOT SIGNED IN AS';
+    if (!tickerSender) return;
+    tickerSender.textContent = s ? ('AS · ' + s.name) : '⚠ Pick sender';
+    tickerSender.classList.toggle('is-unset', !s);
+  }
+
+  function renderSenderSheet() {
+    if (!senderSheetList) return;
+    const cur = getSenderIdx();
+    senderSheetList.innerHTML = BOARD.map((b, i) => `
+      <button type="button" class="sheet-item ${i === cur ? 'is-active' : ''}" data-sender-idx="${i}">
+        <span class="sheet-item-name">${esc(b.name)}</span>
+        <span class="sheet-item-role">${esc(b.role)}</span>
+        ${i === cur ? '<span class="sheet-item-check">✓</span>' : ''}
+      </button>`).join('');
+    if (sheetSenderHint) {
+      const s = getSender();
+      sheetSenderHint.textContent = s
+        ? 'Emails will be logged as sent by ' + s.name + '.'
+        : 'Pick yourself — required for accountability.';
+      sheetSenderHint.className = 'sheet-hint ' + (s ? 'ok' : 'warn');
+    }
+    if (sheetKpis && sideKpis) sheetKpis.innerHTML = sideKpis.innerHTML;
+    if (sheetDraftState && sideDraft) sheetDraftState.innerHTML = sideDraft.innerHTML;
+  }
+  function openSenderSheet() {
+    renderSenderSheet();
+    if (senderSheet) { senderSheet.classList.remove('hidden'); senderSheet.setAttribute('aria-hidden', 'false'); }
+  }
+  function closeSenderSheet() {
+    if (senderSheet) { senderSheet.classList.add('hidden'); senderSheet.setAttribute('aria-hidden', 'true'); }
   }
 
   /* ──────── templates & audiences ──────── */
@@ -328,11 +399,17 @@
       if (!id) return;
       const t = TEMPLATES.find(x => x.id === id);
       if (!t) return;
-      const hasContent = editorBody.innerText.trim().length > 0 || subjectInput.value.trim();
-      if (hasContent && !confirm('Replace the current subject and body with the "' + t.label + '" template?')) return;
+
+      const prev = { subject: subjectInput.value, body: editorBody.innerHTML };
       subjectInput.value = t.subject;
       editorBody.innerHTML = t.body;
-      flashStatus('Template applied: ' + t.label);
+      updateSideDraftState();
+
+      showUndoToast('Template applied: ' + t.label, () => {
+        subjectInput.value = prev.subject;
+        editorBody.innerHTML = prev.body;
+        updateSideDraftState();
+      });
     });
   }
   function buildAudienceSelect() {
@@ -356,11 +433,13 @@
     const dayStart = new Date(); dayStart.setHours(0, 0, 0, 0);
     const todayEmails = state.emails.filter(e => new Date(e.Timestamp).getTime() >= dayStart.getTime()).length;
     const failed = state.emails.filter(e => String(e.Status || '').toUpperCase() === 'FAILED').length;
-    sideKpis.innerHTML = `
+    const html = `
       <div class="side-kpi"><span class="side-kpi-label">MEMBERS</span><span class="side-kpi-value is-green">${state.members.length}</span></div>
       <div class="side-kpi"><span class="side-kpi-label">BOARD</span><span class="side-kpi-value">${BOARD.length}</span></div>
       <div class="side-kpi"><span class="side-kpi-label">SENT TODAY</span><span class="side-kpi-value is-gold">${todayEmails}</span></div>
       <div class="side-kpi"><span class="side-kpi-label">FAILED</span><span class="side-kpi-value ${failed ? 'is-red' : ''}">${failed}</span></div>`;
+    sideKpis.innerHTML = html;
+    if (sheetKpis) sheetKpis.innerHTML = html;
   }
 
   /* ──────── board ──────── */
@@ -575,6 +654,7 @@
       </span>`).join('');
     recipientCnt.textContent = '· ' + state.composeRecipients.length + ' in compose';
     clearAllRecipientsBtn.classList.toggle('hidden', state.composeRecipients.length === 0);
+    updateSideDraftState();
   }
   chipsEl.addEventListener('click', e => {
     const btn = e.target.closest('[data-chip-remove]');
@@ -697,6 +777,13 @@
       finalSubject = '[TEST] ' + subject;
     }
 
+    // Snapshot for undo after send
+    const prevForm = {
+      recipients: state.composeRecipients.slice(),
+      subject: subjectInput.value,
+      body: editorBody.innerHTML
+    };
+
     sendBtn.disabled = true;
     sendBtn.innerHTML = '<span class="spinner spinner-sm"></span> SENDING…';
     flashStatus('Sending to ' + recipients.length + '…');
@@ -716,16 +803,34 @@
         const f = result.failed || 0;
         flashStatus(f > 0 ? '⚠ Sent to ' + result.sent + ' · ' + f + ' failed' : '✓ Sent to ' + result.sent, f > 0);
         if (!testMode) {
-          state.composeRecipients = [];
+          // Keep failed recipients so user can retry; clear successful ones
+          if (f > 0 && Array.isArray(result.results)) {
+            const failedEmails = new Set(
+              result.results.filter(r => r.status === 'FAILED').map(r => String(r.email).toLowerCase())
+            );
+            state.composeRecipients = state.composeRecipients.filter(r => failedEmails.has(r.email.toLowerCase()));
+          } else {
+            state.composeRecipients = [];
+          }
           renderChips();
           subjectInput.value = '';
           editorBody.innerHTML = '';
           localStorage.removeItem(DRAFT_STORAGE);
           updateSideDraftState();
           await reload();
+
+          showUndoToast(
+            f > 0 ? `Sent ${result.sent} · ${f} failed` : `Sent to ${result.sent}`,
+            () => {
+              state.composeRecipients = prevForm.recipients;
+              renderChips();
+              subjectInput.value = prevForm.subject;
+              editorBody.innerHTML = prevForm.body;
+              updateSideDraftState();
+            }
+          );
         }
       } else {
-        // Rich error output — include server version and remaining quota when available.
         let msg = (result && result.error) || 'Send failed';
         if (result && result.version) msg += ' [' + result.version + ']';
         if (result && typeof result.quota === 'number' && result.quota >= 0) msg += ' · quota ' + result.quota;
@@ -766,12 +871,18 @@
   function updateSideDraftState() {
     const subject = subjectInput.value.trim();
     const hasBody = editorBody.innerText.trim().length > 0;
-    if (!subject && !hasBody && !state.composeRecipients.length) { sideDraft.textContent = 'No draft.'; return; }
-    const parts = [];
-    parts.push(state.composeRecipients.length + ' recipient' + (state.composeRecipients.length === 1 ? '' : 's'));
-    if (subject) parts.push('"<strong>' + esc(subject.slice(0, 40)) + (subject.length > 40 ? '…' : '') + '</strong>"');
-    else parts.push('<em>no subject</em>');
-    sideDraft.innerHTML = parts.join(' · ');
+    let html;
+    if (!subject && !hasBody && !state.composeRecipients.length) {
+      html = 'No draft.';
+    } else {
+      const parts = [];
+      parts.push(state.composeRecipients.length + ' recipient' + (state.composeRecipients.length === 1 ? '' : 's'));
+      if (subject) parts.push('"<strong>' + esc(subject.slice(0, 40)) + (subject.length > 40 ? '…' : '') + '</strong>"');
+      else parts.push('<em>no subject</em>');
+      html = parts.join(' · ');
+    }
+    sideDraft.innerHTML = html;
+    if (sheetDraftState) sheetDraftState.innerHTML = html;
   }
   draftBtn.addEventListener('click', () => {
     const draft = { recipients: state.composeRecipients, subject: subjectInput.value, body: editorBody.innerHTML };

@@ -37,7 +37,7 @@
     <span class="ticker-brand">◆ ATC HR</span>
     <span class="ticker-live"><span class="live-dot"></span>LIVE</span>
     <span class="ticker-time" id="tickerTime">--:--:--</span>
-    <span class="ticker-sender" id="tickerSender">—</span>
+    <button type="button" class="ticker-sender" id="tickerSender" title="Change sender">—</button>
     <span class="ticker-spacer"></span>
     <span class="ticker-msg" id="tickerMsg">SYNCED</span>
     <button type="button" class="ticker-btn" id="refreshBtn">↻ REFRESH</button>
@@ -192,6 +192,38 @@
         <div class="side-state" id="sideDraftState">No draft.</div>
       </div>
     </aside>
+  </div>
+</div>
+
+<!-- MOBILE BOTTOM NAV -->
+<nav class="mobile-nav" id="mobileNav" aria-label="Sections">
+  <button type="button" data-tab="people" class="active"><span class="mn-icon">◉</span><span class="mn-label">People</span></button>
+  <button type="button" data-tab="compose"><span class="mn-icon">✎</span><span class="mn-label">Compose</span></button>
+  <button type="button" data-tab="sent"><span class="mn-icon">➤</span><span class="mn-label">Sent</span></button>
+  <button type="button" data-tab="board"><span class="mn-icon">⌘</span><span class="mn-label">Board</span></button>
+</nav>
+
+<!-- SENDER SHEET (mobile) -->
+<div class="sheet hidden" id="senderSheet" aria-hidden="true" role="dialog" aria-modal="true">
+  <div class="sheet-backdrop" data-close-sheet></div>
+  <div class="sheet-card" role="document">
+    <div class="sheet-handle"></div>
+    <div class="sheet-head">
+      <h3>ACTING AS</h3>
+      <button type="button" class="sheet-close" data-close-sheet aria-label="Close">✕</button>
+    </div>
+    <div class="sheet-body">
+      <p class="sheet-hint" id="sheetSenderHint">Pick yourself — required for accountability.</p>
+      <div class="sheet-list" id="senderSheetList"></div>
+      <div class="sheet-section">
+        <span class="sheet-section-label">SNAPSHOT</span>
+        <div class="side-kpis sheet-kpis" id="sheetKpis"></div>
+      </div>
+      <div class="sheet-section">
+        <span class="sheet-section-label">CURRENT DRAFT</span>
+        <div class="side-state" id="sheetDraftState">No draft.</div>
+      </div>
+    </div>
   </div>
 </div>
 

@@ -1,4 +1,4 @@
 window.ATC_CONFIG = {
-  APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbyPFo17z56Yj5vb6O59NjX5oSDUAquJQHLajfiZNL3QO1dSFY9ooXcIxaa3bcjZ4a-N_A/exec',
+  APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbxQrL7GoisUvt-_blpNlueNxmxv9-o2SPZlV5vUJua-mLSgZts4Ay2GHLnT6KD30TjRvQ/exec',
   STAFF_PASSWORD: '3.14159'
 };

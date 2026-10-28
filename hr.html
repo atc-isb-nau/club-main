@@ -37,134 +37,189 @@
     <span class="ticker-brand">◆ ATC HR</span>
     <span class="ticker-live"><span class="live-dot"></span>LIVE</span>
     <span class="ticker-time" id="tickerTime">--:--:--</span>
+    <span class="ticker-sender" id="tickerSender">—</span>
     <span class="ticker-spacer"></span>
     <span class="ticker-msg" id="tickerMsg">SYNCED</span>
     <button type="button" class="ticker-btn" id="refreshBtn">↻ REFRESH</button>
     <button type="button" class="ticker-btn" id="logoutBtn">✕ EXIT</button>
   </header>
 
-  <section class="kpi-strip" id="kpiStrip" aria-label="HR numbers"></section>
+  <div class="dash-layout">
+    <main class="dash-main" id="dashMain">
 
-  <nav class="hr-tabs" id="hrTabs">
-    <button data-tab="people" class="active">PEOPLE</button>
-    <button data-tab="compose">COMPOSE</button>
-    <button data-tab="sent">SENT</button>
-  </nav>
-
-  <!-- PEOPLE ────────────────────────────────────────────── -->
-  <section class="hr-panel active" data-panel="people">
-
-    <div class="panel">
-      <div class="panel-head">
-        <h3>CLUB MEMBERS · <span id="clubCount" style="color:var(--green)">0</span></h3>
-        <input type="search" id="clubSearch" class="hr-search" placeholder="Search members…" autocomplete="off">
-      </div>
-      <div class="table-scroll">
-        <table id="clubTable" class="terminal-table"></table>
-      </div>
-    </div>
-
-    <div class="panel" style="margin-top:12px">
-      <div class="panel-head">
-        <h3>BOARD · 12</h3>
-        <input type="search" id="boardSearch" class="hr-search" placeholder="Search board…" autocomplete="off">
-      </div>
-      <div class="members-grid" id="boardGrid"></div>
-    </div>
-
-  </section>
-
-  <!-- COMPOSE ────────────────────────────────────────────── -->
-  <section class="hr-panel" data-panel="compose">
-    <div class="panel">
-      <div class="panel-head">
-        <h3>NEW MESSAGE</h3>
-        <span class="panel-tag" id="composeTag">MAILAPP · HTML</span>
-      </div>
-
-      <form id="composeForm" class="hr-form" autocomplete="off">
-
-        <div class="hr-field">
-          <span class="hr-label">RECIPIENTS</span>
-          <div class="chips" id="chips"></div>
-          <div class="add-recipient">
-            <input id="addRecipient" list="allPeopleList" placeholder="Add by name or email…" autocomplete="off">
-            <datalist id="allPeopleList"></datalist>
-            <button type="button" id="addRecipientBtn">ADD</button>
+      <section class="dash-panel active" data-panel="people">
+        <div class="panel">
+          <div class="panel-head">
+            <h3>CLUB MEMBERS · <span id="clubCount" style="color:var(--green)">0</span></h3>
+            <input type="search" id="clubSearch" class="hr-search" placeholder="Search members…" autocomplete="off">
           </div>
+          <div class="table-scroll"><table id="clubTable" class="terminal-table"></table></div>
         </div>
 
-        <label class="hr-field">
-          <span class="hr-label">SUBJECT</span>
-          <input id="subject" type="text" class="hr-input" maxlength="200" required>
-        </label>
+        <div class="panel">
+          <div class="panel-head">
+            <h3>BOARD · 12</h3>
+            <input type="search" id="boardSearch" class="hr-search" placeholder="Search board…" autocomplete="off">
+          </div>
+          <div class="members-grid" id="boardGrid"></div>
+        </div>
+      </section>
 
-        <div class="hr-field">
-          <span class="hr-label">MESSAGE</span>
-          <div class="editor-wrap">
-            <div class="editor-toolbar" id="editorToolbar">
-              <button type="button" data-cmd="bold" title="Bold (Ctrl+B)"><b>B</b></button>
-              <button type="button" data-cmd="italic" title="Italic (Ctrl+I)"><i>I</i></button>
-              <button type="button" data-cmd="underline" title="Underline (Ctrl+U)"><u>U</u></button>
-              <span class="tb-sep"></span>
-              <button type="button" data-cmd="hiliteColor" data-val="#fff3a0" title="Highlight" class="hl-btn">▮</button>
-              <span class="tb-sep"></span>
-              <select data-cmd="fontName" id="tbFont" title="Font">
-                <option value="">Font</option>
-                <option value="Arial, sans-serif">Sans</option>
-                <option value="Georgia, serif">Serif</option>
-                <option value="'JetBrains Mono', monospace">Mono</option>
-                <option value="'Times New Roman', serif">Times</option>
-              </select>
-              <select data-cmd="fontSize" id="tbSize" title="Size">
-                <option value="">Size</option>
-                <option value="2">Small</option>
-                <option value="3">Normal</option>
-                <option value="5">Large</option>
-                <option value="6">Huge</option>
-              </select>
-              <span class="tb-sep"></span>
-              <button type="button" data-cmd="createLink" title="Insert link">🔗</button>
-              <button type="button" data-cmd="insertImage" title="Insert image URL">🖼</button>
-              <span class="tb-sep"></span>
-              <button type="button" data-cmd="justifyLeft" title="Align left">⇤</button>
-              <button type="button" data-cmd="justifyCenter" title="Center">↔</button>
-              <span class="tb-sep"></span>
-              <button type="button" data-cmd="removeFormat" title="Clear formatting">✕</button>
+      <section class="dash-panel" data-panel="compose">
+        <div class="panel">
+          <div class="panel-head">
+            <h3>NEW MESSAGE</h3>
+            <div class="compose-toolbar">
+              <select id="templateSelect" class="compose-select" title="Insert a template"><option value="">Templates…</option></select>
+              <select id="audienceSelect" class="compose-select" title="Add a whole group"><option value="">Add audience…</option></select>
             </div>
-            <div class="editor-body" id="editorBody" contenteditable="true"
-                 data-placeholder="Write your message…"></div>
           </div>
+
+          <form id="composeForm" class="hr-form" autocomplete="off">
+
+            <div class="hr-field">
+              <div class="hr-field-header">
+                <span class="hr-label">RECIPIENTS <span id="recipientCount" class="muted" style="font-weight:400;letter-spacing:0;font-style:normal"></span></span>
+                <button type="button" class="clear-all-btn hidden" id="clearAllRecipients">CLEAR ALL</button>
+              </div>
+              <div class="chips" id="chips"></div>
+              <div class="add-recipient">
+                <input id="addRecipient" list="allPeopleList" placeholder="Add by name or email…" autocomplete="off">
+                <datalist id="allPeopleList"></datalist>
+                <button type="button" id="addRecipientBtn">ADD</button>
+              </div>
+            </div>
+
+            <label class="hr-field">
+              <span class="hr-label">SUBJECT</span>
+              <input id="subject" type="text" class="hr-input" maxlength="200">
+            </label>
+
+            <div class="hr-field">
+              <span class="hr-label">MESSAGE</span>
+              <div class="editor-wrap">
+                <div class="editor-toolbar" id="editorToolbar">
+                  <button type="button" data-cmd="bold" title="Bold"><b>B</b></button>
+                  <button type="button" data-cmd="italic" title="Italic"><i>I</i></button>
+                  <button type="button" data-cmd="underline" title="Underline"><u>U</u></button>
+                  <span class="tb-sep"></span>
+                  <button type="button" data-cmd="hiliteColor" data-val="#fff3a0" title="Highlight" class="hl-btn">▮</button>
+                  <span class="tb-sep"></span>
+                  <select data-cmd="fontName" id="tbFont" title="Font">
+                    <option value="">Font</option>
+                    <option value="Arial, sans-serif">Sans</option>
+                    <option value="Georgia, serif">Serif</option>
+                    <option value="'JetBrains Mono', monospace">Mono</option>
+                    <option value="'Times New Roman', serif">Times</option>
+                  </select>
+                  <select data-cmd="fontSize" id="tbSize" title="Size">
+                    <option value="">Size</option>
+                    <option value="2">Small</option>
+                    <option value="3">Normal</option>
+                    <option value="5">Large</option>
+                    <option value="6">Huge</option>
+                  </select>
+                  <span class="tb-sep"></span>
+                  <button type="button" data-cmd="createLink" title="Insert link">🔗</button>
+                  <button type="button" data-cmd="insertImage" title="Insert image URL">🖼</button>
+                  <span class="tb-sep"></span>
+                  <button type="button" data-cmd="justifyLeft" title="Align left">⇤</button>
+                  <button type="button" data-cmd="justifyCenter" title="Center">↔</button>
+                  <span class="tb-sep"></span>
+                  <button type="button" data-cmd="removeFormat" title="Clear formatting">✕</button>
+                </div>
+                <div class="editor-body" id="editorBody" contenteditable="true" data-placeholder="Write your message…"></div>
+              </div>
+            </div>
+
+            <p id="composeErr" class="login-err hidden"></p>
+
+            <div class="hr-compose-actions">
+              <button type="button" id="previewBtn" class="btn-ghost">👁 PREVIEW</button>
+              <button type="button" id="draftBtn" class="btn-ghost">💾 SAVE DRAFT</button>
+              <button type="button" id="testBtn" class="btn-ghost">📤 TEST TO ME</button>
+              <button type="submit" class="hr-send-btn" id="sendBtn">SEND ▸</button>
+              <span id="sendStatus" class="status-pill hidden"></span>
+            </div>
+          </form>
         </div>
+      </section>
 
-        <p id="composeErr" class="login-err hidden"></p>
-        <div class="hr-compose-actions">
-          <button type="submit" class="hr-send-btn" id="sendBtn">SEND ▸</button>
-          <span id="sendStatus" class="status-pill hidden"></span>
+      <section class="dash-panel" data-panel="sent">
+        <div class="panel">
+          <div class="panel-head"><h3>SENT</h3><span class="panel-tag" id="sentTag">—</span></div>
+          <div class="table-scroll"><table id="sentTable" class="terminal-table"></table></div>
         </div>
+      </section>
 
-      </form>
-    </div>
-  </section>
+      <section class="dash-panel" data-panel="board">
+        <div class="panel">
+          <div class="panel-head"><h3>BOARD ACCOUNTABILITY</h3><span class="panel-tag" id="boardTag">—</span></div>
+          <div class="table-scroll"><table id="boardStatsTable" class="terminal-table"></table></div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h3>RECENT ATTRIBUTED SENDS</h3><span class="panel-tag">ALL BOARD</span></div>
+          <div class="table-scroll"><table id="boardRecentTable" class="terminal-table"></table></div>
+        </div>
+      </section>
 
-  <!-- SENT ───────────────────────────────────────────────── -->
-  <section class="hr-panel" data-panel="sent">
-    <div class="panel">
-      <div class="panel-head">
-        <h3>SENT</h3>
-        <span class="panel-tag" id="sentTag">—</span>
+    </main>
+
+    <aside class="dash-sidebar">
+      <div class="side-section">
+        <span class="side-label">SECTIONS</span>
+        <nav class="side-nav" id="sideNav">
+          <button data-tab="people"  class="active"><span class="nav-icon">◉</span>People</button>
+          <button data-tab="compose"><span class="nav-icon">✎</span>Compose</button>
+          <button data-tab="sent"><span class="nav-icon">➤</span>Sent</button>
+          <button data-tab="board"><span class="nav-icon">⌘</span>Board Log</button>
+        </nav>
       </div>
-      <div class="table-scroll"><table id="sentTable" class="terminal-table"></table></div>
-    </div>
-  </section>
 
+      <div class="side-section">
+        <span class="side-label">ACTING AS</span>
+        <select id="senderSelect" class="side-select"><option value="">— pick yourself —</option></select>
+        <p id="senderHint" class="side-hint warn">Required for accountability.</p>
+      </div>
+
+      <div class="side-section">
+        <span class="side-label">SNAPSHOT</span>
+        <div class="side-kpis" id="sideKpis"></div>
+      </div>
+
+      <div class="side-section">
+        <span class="side-label">CURRENT DRAFT</span>
+        <div class="side-state" id="sideDraftState">No draft.</div>
+      </div>
+    </aside>
+  </div>
 </div>
 
-<!-- Floating selection bar -->
 <div class="selection-bar hidden" id="selectionBar">
   <span class="sel-count"><b id="selCount">0</b> selected</span>
   <button type="button" id="composeSelectedBtn">✉ MESSAGE SELECTED</button>
   <button type="button" id="clearSelectionBtn">✕ CLEAR</button>
+</div>
+
+<div class="modal hidden" id="previewModal">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h3>EMAIL PREVIEW</h3>
+      <button type="button" id="closePreviewBtn">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-meta">
+        <div><span class="key">FROM</span><b id="pvFrom">—</b></div>
+        <div><span class="key">TO</span><b id="pvTo">—</b></div>
+        <div><span class="key">SUBJECT</span><b id="pvSubject">—</b></div>
+      </div>
+      <div class="pv-frame"><iframe id="pvFrame" sandbox="allow-same-origin" referrerpolicy="no-referrer"></iframe></div>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="modal-cancel" id="closePreviewBtn2">Close</button>
+      <button type="button" class="modal-primary" id="sendFromPreviewBtn">Send ▸</button>
+    </div>
+  </div>
 </div>
 
 <script src="assets/js/config.js"></script>

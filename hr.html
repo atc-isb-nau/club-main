@@ -4,11 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="theme-color" content="#060a11">
+<meta name="theme-color" content="#161616">
 <title>ATC · HR</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="assets/css/hr.css">
 </head>
 <body class="admin-body">
@@ -34,26 +34,63 @@
 <div id="dashboard" class="admin-dashboard hidden">
 
   <header class="terminal-ticker">
+    <button type="button" class="ticker-hamburger" id="hamburgerBtn" aria-label="Open menu">
+      <svg viewBox="0 0 32 32" width="20" height="20" fill="currentColor" aria-hidden="true">
+        <rect width="32" height="2" y="6"/>
+        <rect width="32" height="2" y="15"/>
+        <rect width="32" height="2" y="24"/>
+      </svg>
+    </button>
     <span class="ticker-brand">◆ ATC HR</span>
     <span class="ticker-live"><span class="live-dot"></span>LIVE</span>
     <span class="ticker-time" id="tickerTime">--:--:--</span>
-    <button type="button" class="ticker-sender" id="tickerSender" title="Change sender">—</button>
     <span class="ticker-spacer"></span>
     <span class="ticker-msg" id="tickerMsg">SYNCED</span>
-    <button type="button" class="ticker-btn" id="refreshBtn">↻ REFRESH</button>
-    <button type="button" class="ticker-btn" id="logoutBtn">✕ EXIT</button>
+    <button type="button" class="ticker-btn" id="refreshBtn" aria-label="Refresh">↻</button>
+    <button type="button" class="ticker-btn" id="logoutBtn" aria-label="Exit">✕</button>
   </header>
 
   <div class="dash-layout">
+    <aside class="dash-sidebar" id="sidebar">
+      <div class="side-section">
+        <span class="side-label">SECTIONS</span>
+        <nav class="side-nav" id="sideNav">
+          <button type="button" data-tab="people"   class="active"><span class="nav-icon">◉</span>People</button>
+          <button type="button" data-tab="actions"><span class="nav-icon">✓</span>Actions</button>
+          <button type="button" data-tab="boardnotes"><span class="nav-icon">▣</span>Board</button>
+          <button type="button" data-tab="compose"><span class="nav-icon">✎</span>Compose</button>
+          <button type="button" data-tab="sent"><span class="nav-icon">➤</span>Sent</button>
+          <button type="button" data-tab="board"><span class="nav-icon">⌘</span>Activity</button>
+        </nav>
+      </div>
+
+      <div class="side-section">
+        <span class="side-label">EMAIL SENDER</span>
+        <select id="senderSelect" class="side-select"><option value="">— pick sender —</option></select>
+        <p id="senderHint" class="side-hint warn">Used only for email attribution.</p>
+      </div>
+
+      <div class="side-section">
+        <span class="side-label">SNAPSHOT</span>
+        <div class="side-kpis" id="sideKpis"></div>
+      </div>
+
+      <div class="side-section">
+        <span class="side-label">CURRENT DRAFT</span>
+        <div class="side-state" id="sideDraftState">No draft.</div>
+      </div>
+    </aside>
+
     <main class="dash-main" id="dashMain">
 
+      <!-- ═══ PEOPLE ═══ -->
       <section class="dash-panel active" data-panel="people">
         <div class="panel">
           <div class="panel-head">
             <h3>CLUB MEMBERS · <span id="clubCount" style="color:var(--green)">0</span></h3>
             <input type="search" id="clubSearch" class="hr-search" placeholder="Search members…" autocomplete="off">
           </div>
-          <div class="table-scroll"><table id="clubTable" class="terminal-table"></table></div>
+          <div class="table-scroll"><table id="clubTable" class="terminal-table mobile-cards"></table></div>
         </div>
 
         <div class="panel">
@@ -65,21 +102,151 @@
         </div>
       </section>
 
+      <!-- ═══ ACTIONS ═══ -->
+      <section class="dash-panel" data-panel="actions">
+        <div class="panel">
+          <div class="panel-head"><h3>NEW ACTION / MARK</h3></div>
+          <form id="actionForm" class="hr-form" autocomplete="off">
+            <div class="hr-form-grid">
+              <label class="hr-field">
+                <span class="hr-label">ACTION NAME *</span>
+                <input type="text" id="actionName" class="hr-input" list="actionNameSuggestions" placeholder="e.g. Hackathon 2026" required>
+                <datalist id="actionNameSuggestions"></datalist>
+              </label>
+              <label class="hr-field">
+                <span class="hr-label">ACTION DATE</span>
+                <input type="date" id="actionDate" class="hr-input">
+              </label>
+              <label class="hr-field">
+                <span class="hr-label">MARK *</span>
+                <select id="actionMark" class="hr-input" required>
+                  <option value="">— select —</option>
+                  <option value="Paid">Paid</option>
+                  <option value="Attended">Attended</option>
+                  <option value="Helpful">Helpful</option>
+                  <option value="Commended">Commended</option>
+                  <option value="Noted">Noted</option>
+                  <option value="Pending">Pending</option>
+                  <option value="Warning">Warning</option>
+                  <option value="No-show">No-show</option>
+                  <option value="Removed">Removed</option>
+                  <option value="__custom">Custom…</option>
+                </select>
+              </label>
+              <label class="hr-field hidden" id="customMarkField">
+                <span class="hr-label">CUSTOM MARK</span>
+                <input type="text" id="customMark" class="hr-input" placeholder="Type custom mark">
+              </label>
+            </div>
+            <label class="hr-field">
+              <span class="hr-label">NOTE <span class="muted">(optional)</span></span>
+              <textarea id="actionNote" class="hr-input" rows="2" placeholder="Context for this mark…"></textarea>
+            </label>
+            <div class="hr-field">
+              <div class="hr-field-header">
+                <span class="hr-label">MEMBERS <span id="actionMemberCount" class="muted"></span></span>
+                <div class="hr-field-header-actions">
+                  <select id="actionAudience" class="compose-select" title="Bulk-add a group">
+                    <option value="">+ Audience…</option>
+                  </select>
+                  <button type="button" class="clear-all-btn hidden" id="clearActionMembers">CLEAR</button>
+                </div>
+              </div>
+              <div class="chips" id="actionMembersChips"></div>
+              <div class="add-recipient">
+                <input id="actionMemberInput" list="allPeopleList" placeholder="Add club member…" autocomplete="off">
+                <button type="button" id="actionMemberAddBtn">ADD</button>
+              </div>
+            </div>
+            <p id="actionErr" class="login-err hidden"></p>
+            <div class="hr-compose-actions">
+              <button type="submit" class="hr-send-btn">MARK ▸</button>
+              <span id="actionStatus" class="status-pill hidden"></span>
+            </div>
+          </form>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <h3>ACTION LOG</h3>
+            <div class="compose-toolbar">
+              <input type="search" id="actionSearch" class="hr-search" placeholder="Search log…" autocomplete="off">
+              <select id="actionFilterName" class="compose-select"><option value="">All actions</option></select>
+              <select id="actionFilterMark" class="compose-select"><option value="">All marks</option></select>
+            </div>
+          </div>
+          <div class="table-scroll"><table id="actionsTable" class="terminal-table mobile-cards"></table></div>
+        </div>
+      </section>
+
+      <!-- ═══ BOARD NOTES ═══ -->
+      <section class="dash-panel" data-panel="boardnotes">
+        <div class="panel">
+          <div class="panel-head"><h3>NEW BOARD RECORD</h3></div>
+          <form id="boardNoteForm" class="hr-form" autocomplete="off">
+            <div class="hr-form-grid">
+              <label class="hr-field">
+                <span class="hr-label">BOARD MEMBER *</span>
+                <select id="boardNoteMember" class="hr-input" required>
+                  <option value="">— select —</option>
+                </select>
+              </label>
+              <label class="hr-field">
+                <span class="hr-label">CATEGORY</span>
+                <select id="boardNoteCategory" class="hr-input">
+                  <option value="Meeting">Meeting</option>
+                  <option value="Task">Task</option>
+                  <option value="Contact">Contact</option>
+                  <option value="Note">Note</option>
+                  <option value="Other">Other</option>
+                </select>
+              </label>
+            </div>
+            <label class="hr-field">
+              <span class="hr-label">NOTE *</span>
+              <textarea id="boardNoteText" class="hr-input" rows="3" placeholder="What happened…" required></textarea>
+            </label>
+            <p id="boardNoteErr" class="login-err hidden"></p>
+            <div class="hr-compose-actions">
+              <button type="submit" class="hr-send-btn">SAVE ▸</button>
+              <span id="boardNoteStatus" class="status-pill hidden"></span>
+            </div>
+          </form>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <h3>BOARD RECORDS</h3>
+            <div class="compose-toolbar">
+              <input type="search" id="boardNoteSearch" class="hr-search" placeholder="Search records…" autocomplete="off">
+              <select id="boardNoteFilterMember" class="compose-select"><option value="">All members</option></select>
+              <select id="boardNoteFilterCategory" class="compose-select"><option value="">All categories</option></select>
+            </div>
+          </div>
+          <div class="table-scroll"><table id="boardNotesTable" class="terminal-table mobile-cards"></table></div>
+        </div>
+      </section>
+
+      <!-- ═══ COMPOSE ═══ -->
       <section class="dash-panel" data-panel="compose">
         <div class="panel">
           <div class="panel-head">
             <h3>NEW MESSAGE</h3>
             <div class="compose-toolbar">
-              <select id="templateSelect" class="compose-select" title="Insert a template"><option value="">Templates…</option></select>
-              <select id="audienceSelect" class="compose-select" title="Add a whole group"><option value="">Add audience…</option></select>
+              <select id="templateSelect" class="compose-select"><option value="">Templates…</option></select>
+              <select id="audienceSelect" class="compose-select"><option value="">Add audience…</option></select>
             </div>
           </div>
 
-          <form id="composeForm" class="hr-form" autocomplete="off">
+          <div class="compose-sender-notice hidden" id="composeSenderNotice">
+            <span>⚠ No email sender picked.</span>
+            <button type="button" id="pickSenderBtn">Pick now</button>
+          </div>
 
+          <form id="composeForm" class="hr-form" autocomplete="off">
             <div class="hr-field">
               <div class="hr-field-header">
-                <span class="hr-label">RECIPIENTS <span id="recipientCount" class="muted" style="font-weight:400;letter-spacing:0;font-style:normal"></span></span>
+                <span class="hr-label">RECIPIENTS <span id="recipientCount" class="muted"></span></span>
                 <button type="button" class="clear-all-btn hidden" id="clearAllRecipients">CLEAR ALL</button>
               </div>
               <div class="chips" id="chips"></div>
@@ -105,14 +272,14 @@
                   <span class="tb-sep"></span>
                   <button type="button" data-cmd="hiliteColor" data-val="#fff3a0" title="Highlight" class="hl-btn">▮</button>
                   <span class="tb-sep"></span>
-                  <select data-cmd="fontName" id="tbFont" title="Font">
+                  <select data-cmd="fontName" title="Font">
                     <option value="">Font</option>
                     <option value="Arial, sans-serif">Sans</option>
                     <option value="Georgia, serif">Serif</option>
-                    <option value="'JetBrains Mono', monospace">Mono</option>
+                    <option value="'IBM Plex Mono', monospace">Mono</option>
                     <option value="'Times New Roman', serif">Times</option>
                   </select>
-                  <select data-cmd="fontSize" id="tbSize" title="Size">
+                  <select data-cmd="fontSize" title="Size">
                     <option value="">Size</option>
                     <option value="2">Small</option>
                     <option value="3">Normal</option>
@@ -145,99 +312,69 @@
         </div>
       </section>
 
+      <!-- ═══ SENT ═══ -->
       <section class="dash-panel" data-panel="sent">
         <div class="panel">
           <div class="panel-head"><h3>SENT</h3><span class="panel-tag" id="sentTag">—</span></div>
-          <div class="table-scroll"><table id="sentTable" class="terminal-table"></table></div>
+          <div class="table-scroll"><table id="sentTable" class="terminal-table mobile-cards"></table></div>
         </div>
       </section>
 
+      <!-- ═══ ACTIVITY / BOARD LOG ═══ -->
       <section class="dash-panel" data-panel="board">
         <div class="panel">
-          <div class="panel-head"><h3>BOARD ACCOUNTABILITY</h3><span class="panel-tag" id="boardTag">—</span></div>
+          <div class="panel-head"><h3>EMAIL ACTIVITY</h3><span class="panel-tag" id="boardTag">—</span></div>
           <div class="table-scroll"><table id="boardStatsTable" class="terminal-table"></table></div>
         </div>
         <div class="panel">
           <div class="panel-head"><h3>RECENT ATTRIBUTED SENDS</h3><span class="panel-tag">ALL BOARD</span></div>
-          <div class="table-scroll"><table id="boardRecentTable" class="terminal-table"></table></div>
+          <div class="table-scroll"><table id="boardRecentTable" class="terminal-table mobile-cards"></table></div>
         </div>
       </section>
 
     </main>
-
-    <aside class="dash-sidebar">
-      <div class="side-section">
-        <span class="side-label">SECTIONS</span>
-        <nav class="side-nav" id="sideNav">
-          <button data-tab="people"  class="active"><span class="nav-icon">◉</span>People</button>
-          <button data-tab="compose"><span class="nav-icon">✎</span>Compose</button>
-          <button data-tab="sent"><span class="nav-icon">➤</span>Sent</button>
-          <button data-tab="board"><span class="nav-icon">⌘</span>Board Log</button>
-        </nav>
-      </div>
-
-      <div class="side-section">
-        <span class="side-label">ACTING AS</span>
-        <select id="senderSelect" class="side-select"><option value="">— pick yourself —</option></select>
-        <p id="senderHint" class="side-hint warn">Required for accountability.</p>
-      </div>
-
-      <div class="side-section">
-        <span class="side-label">SNAPSHOT</span>
-        <div class="side-kpis" id="sideKpis"></div>
-      </div>
-
-      <div class="side-section">
-        <span class="side-label">CURRENT DRAFT</span>
-        <div class="side-state" id="sideDraftState">No draft.</div>
-      </div>
-    </aside>
   </div>
 </div>
 
-<!-- MOBILE BOTTOM NAV -->
-<nav class="mobile-nav" id="mobileNav" aria-label="Sections">
-  <button type="button" data-tab="people" class="active"><span class="mn-icon">◉</span><span class="mn-label">People</span></button>
-  <button type="button" data-tab="compose"><span class="mn-icon">✎</span><span class="mn-label">Compose</span></button>
-  <button type="button" data-tab="sent"><span class="mn-icon">➤</span><span class="mn-label">Sent</span></button>
-  <button type="button" data-tab="board"><span class="mn-icon">⌘</span><span class="mn-label">Board</span></button>
-</nav>
+<!-- DRAWER BACKDROP -->
+<div class="drawer-backdrop" id="drawerBackdrop"></div>
 
-<!-- SENDER SHEET (mobile) -->
-<div class="sheet hidden" id="senderSheet" aria-hidden="true" role="dialog" aria-modal="true">
-  <div class="sheet-backdrop" data-close-sheet></div>
-  <div class="sheet-card" role="document">
-    <div class="sheet-handle"></div>
-    <div class="sheet-head">
-      <h3>ACTING AS</h3>
-      <button type="button" class="sheet-close" data-close-sheet aria-label="Close">✕</button>
+<!-- MEMBER DETAIL MODAL -->
+<div class="modal hidden" id="memberModal" role="dialog" aria-modal="true">
+  <div class="modal-card member-modal-card">
+    <div class="modal-head">
+      <h3 id="memberModalTitle">MEMBER</h3>
+      <button type="button" id="closeMemberModal" aria-label="Close">✕</button>
     </div>
-    <div class="sheet-body">
-      <p class="sheet-hint" id="sheetSenderHint">Pick yourself — required for accountability.</p>
-      <div class="sheet-list" id="senderSheetList"></div>
-      <div class="sheet-section">
-        <span class="sheet-section-label">SNAPSHOT</span>
-        <div class="side-kpis sheet-kpis" id="sheetKpis"></div>
-      </div>
-      <div class="sheet-section">
-        <span class="sheet-section-label">CURRENT DRAFT</span>
-        <div class="side-state" id="sheetDraftState">No draft.</div>
-      </div>
+    <div class="modal-body" id="memberModalBody">
+      <!-- filled by JS -->
     </div>
   </div>
 </div>
 
-<div class="selection-bar hidden" id="selectionBar">
-  <span class="sel-count"><b id="selCount">0</b> selected</span>
-  <button type="button" id="composeSelectedBtn">✉ MESSAGE SELECTED</button>
-  <button type="button" id="clearSelectionBtn">✕ CLEAR</button>
+<!-- CONFIRM DIALOG -->
+<div class="modal hidden" id="confirmModal" role="dialog" aria-modal="true">
+  <div class="modal-card confirm-card">
+    <div class="modal-head">
+      <h3>CONFIRM</h3>
+      <button type="button" id="confirmClose" aria-label="Close">✕</button>
+    </div>
+    <div class="modal-body">
+      <p id="confirmMsg" class="confirm-msg">Are you sure?</p>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="modal-cancel" id="confirmCancel">Cancel</button>
+      <button type="button" class="modal-primary danger" id="confirmOk">Delete</button>
+    </div>
+  </div>
 </div>
 
-<div class="modal hidden" id="previewModal">
+<!-- PREVIEW MODAL -->
+<div class="modal hidden" id="previewModal" role="dialog" aria-modal="true">
   <div class="modal-card">
     <div class="modal-head">
       <h3>EMAIL PREVIEW</h3>
-      <button type="button" id="closePreviewBtn">✕</button>
+      <button type="button" id="closePreviewBtn" aria-label="Close">✕</button>
     </div>
     <div class="modal-body">
       <div class="modal-meta">
@@ -252,6 +389,13 @@
       <button type="button" class="modal-primary" id="sendFromPreviewBtn">Send ▸</button>
     </div>
   </div>
+</div>
+
+<!-- SELECTION BAR -->
+<div class="selection-bar hidden" id="selectionBar">
+  <span class="sel-count"><b id="selCount">0</b> selected</span>
+  <button type="button" id="composeSelectedBtn">✉ MESSAGE</button>
+  <button type="button" id="clearSelectionBtn">✕ CLEAR</button>
 </div>
 
 <script src="assets/js/config.js"></script>

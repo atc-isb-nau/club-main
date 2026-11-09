@@ -1,4 +1,3 @@
-
 var UNI_SPREADSHEET_ID     = "1FQJgt1ryyqBoaw5fZInjdSoVVuLqgerQ5XsvVrs12Gw";
 var UNI_SHEET_NAME         = "unimail";
 var UNI_GROUP_URL_FALLBACK = "https://chat.whatsapp.com/CraYVK5ZPRJEVBtT9PE9dw";
@@ -7,7 +6,19 @@ var UNI_DOMAIN_KEYWORDS    = ["isb", "iit", "rnu", "nau", "npu"];
 var UNI_RATE_WINDOW_SECONDS = 600;
 var UNI_RATE_MAX_ATTEMPTS   = 5;
 
-/* ============================== ROUTED ENTRY ======================== */
+/* ============================== ENTRY POINTS ======================== */
+/* Apps Script only auto-invokes functions named exactly doPost / doGet.
+   Everything else is ignored by the runtime, so these wrappers MUST exist. */
+
+function doPost(e) {
+  return uniDoPost(e);
+}
+
+function doGet(e) {
+  return uniDoGet(e);
+}
+
+/* ============================== ROUTED LOGIC ======================== */
 
 function uniDoPost(e) {
   try {
@@ -76,7 +87,7 @@ function uniIsAllowedDomain_(email) {
 
 function uniIsRateLimited_(email) {
   var cache = CacheService.getScriptCache();
-  var key = "uni:rl:" + email;               // "uni:" prefix avoids any collision
+  var key = "uni:rl:" + email;
   var n = Number(cache.get(key) || 0);
   if (n >= UNI_RATE_MAX_ATTEMPTS) return true;
   cache.put(key, String(n + 1), UNI_RATE_WINDOW_SECONDS);
@@ -144,7 +155,7 @@ function uniSetupSheet() {
 }
 
 function uniTestSubmission() {
-  var res = uniDoPost({
+  var res = doPost({                             // ← test through the real entry point
     postData: {
       contents: JSON.stringify({
         email: "student@isb.rnu.tn",

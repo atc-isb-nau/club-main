@@ -6,19 +6,6 @@ var UNI_DOMAIN_KEYWORDS    = ["isb", "iit", "rnu", "nau", "npu"];
 var UNI_RATE_WINDOW_SECONDS = 600;
 var UNI_RATE_MAX_ATTEMPTS   = 5;
 
-/* ============================== ENTRY POINTS ======================== */
-/* Apps Script only auto-invokes functions named exactly doPost / doGet.
-   Without these wrappers, the /exec URL returns an HTML error page and the
-   browser reports a CORS error because that error page has no CORS headers. */
-
-function doPost(e) {
-  return uniDoPost(e);
-}
-
-function doGet(e) {
-  return uniDoGet(e);
-}
-
 /* ============================== ROUTED LOGIC ======================== */
 
 function uniDoPost(e) {
@@ -156,7 +143,7 @@ function uniSetupSheet() {
 }
 
 function uniTestSubmission() {
-  var res = doPost({
+  var res = uniDoPost({
     postData: {
       contents: JSON.stringify({
         email: "student@isb.rnu.tn",

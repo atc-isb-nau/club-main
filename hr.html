@@ -1,320 +1,404 @@
-<!doctype html>
-<html lang="en" dir="ltr">
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#0a1">
-  <meta name="description" content="Confirm your university email to join the official ATC ISB WhatsApp group.">
-  <title>Confirm your university email | ATC ISB</title>
-  <link rel="stylesheet" href="assets/css/theme.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#161616">
+<title>ATC · HR</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="assets/css/hr.css">
 </head>
-<body>
-  <div class="site-body">
-    <main class="page-shell">
-      <div class="brand" aria-label="Algorithmic Trading Club">
-        <span class="brand-mark" aria-hidden="true">ATC</span>
-        <span>ALGORITHMIC TRADING CLUB · ISB</span>
+<body class="admin-body">
+
+<!-- LOGIN -->
+<section id="login" class="admin-login">
+  <div class="login-box">
+    <div class="login-head">
+      <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+      <span class="login-title">atc@hr:~</span>
+    </div>
+    <form id="loginForm" autocomplete="off">
+      <p class="login-line"><span class="prompt">$</span> connect hr<span class="cursor">_</span></p>
+      <label class="login-label" for="pw">ACCESS CODE</label>
+      <input id="pw" type="password" placeholder="•••••••" autocomplete="off" autocapitalize="off" spellcheck="false" required>
+      <button type="submit">CONNECT ▸</button>
+      <p id="loginErr" class="login-err hidden"></p>
+    </form>
+  </div>
+</section>
+
+<!-- DASHBOARD -->
+<div id="dashboard" class="admin-dashboard hidden">
+
+  <header class="terminal-ticker">
+    <button type="button" class="ticker-hamburger" id="hamburgerBtn" aria-label="Open menu">
+      <svg viewBox="0 0 32 32" width="20" height="20" fill="currentColor" aria-hidden="true">
+        <rect width="32" height="2" y="6"/>
+        <rect width="32" height="2" y="15"/>
+        <rect width="32" height="2" y="24"/>
+      </svg>
+    </button>
+    <span class="ticker-brand">◆ ATC HR</span>
+    <span class="ticker-live"><span class="live-dot"></span>LIVE</span>
+    <span class="ticker-time" id="tickerTime">--:--:--</span>
+    <span class="ticker-spacer"></span>
+    <span class="ticker-msg" id="tickerMsg">SYNCED</span>
+    <button type="button" class="ticker-btn" id="refreshBtn" aria-label="Refresh">↻</button>
+    <button type="button" class="ticker-btn" id="logoutBtn" aria-label="Exit">✕</button>
+  </header>
+
+  <div class="dash-layout">
+    <aside class="dash-sidebar" id="sidebar">
+      <div class="side-section">
+        <span class="side-label">SECTIONS</span>
+        <nav class="side-nav" id="sideNav">
+          <button type="button" data-tab="people"   class="active"><span class="nav-icon">◉</span>People</button>
+          <button type="button" data-tab="actions"><span class="nav-icon">✓</span>Actions</button>
+          <button type="button" data-tab="boardnotes"><span class="nav-icon">▣</span>Board</button>
+          <button type="button" data-tab="compose"><span class="nav-icon">✎</span>Compose</button>
+          <button type="button" data-tab="sent"><span class="nav-icon">➤</span>Sent</button>
+          <button type="button" data-tab="board"><span class="nav-icon">⌘</span>Activity</button>
+        </nav>
       </div>
 
-      <section class="app-card" aria-labelledby="page-title">
-        <p class="eyebrow" data-i18n="eyebrow">MEMBERSHIP CONFIRMATION</p>
-        <h1 id="page-title" data-i18n="title">Confirm your university email.</h1>
-        <p class="lead" data-i18n="lead">Enter your ISB or IIT university email to continue to the official ATC WhatsApp group.</p>
+      <div class="side-section">
+        <span class="side-label">EMAIL SENDER</span>
+        <select id="senderSelect" class="side-select"><option value="">— pick sender —</option></select>
+        <p id="senderHint" class="side-hint warn">Used only for email attribution.</p>
+      </div>
 
-        <div class="notice" data-i18n="notice">
-          WhatsApp group access is intended for university members. Use your university email address, not a personal Gmail or Outlook address.
+      <div class="side-section">
+        <span class="side-label">SNAPSHOT</span>
+        <div class="side-kpis" id="sideKpis"></div>
+      </div>
+
+      <div class="side-section">
+        <span class="side-label">CURRENT DRAFT</span>
+        <div class="side-state" id="sideDraftState">No draft.</div>
+      </div>
+    </aside>
+
+    <main class="dash-main" id="dashMain">
+
+      <!-- ═══ PEOPLE ═══ -->
+      <section class="dash-panel active" data-panel="people">
+        <div class="panel">
+          <div class="panel-head">
+            <h3>CLUB MEMBERS · <span id="clubCount" style="color:var(--green)">0</span></h3>
+            <input type="search" id="clubSearch" class="hr-search" placeholder="Search members…" autocomplete="off">
+          </div>
+          <div class="table-scroll"><table id="clubTable" class="terminal-table mobile-cards"></table></div>
         </div>
 
-        <form id="email-form" class="form-stack" novalidate>
-          <label class="field-label" for="university-email" data-i18n="emailLabel">University email address</label>
-          <input class="field-control" id="university-email" name="email" type="email" inputmode="email"
-                 autocomplete="email" autocapitalize="none" spellcheck="false"
-                 placeholder="name@university.tn" required aria-describedby="email-help">
-          <p id="email-help" class="small-note" data-i18n="emailHelp">We make a best-effort check based on the email domain. If your university uses a domain that doesn't include “ISB” or “IIT”, contact the club board.</p>
-
-          <div class="hp-field" aria-hidden="true">
-            <label for="website">Leave this field empty</label>
-            <input id="website" name="website" type="text" tabindex="-1" autocomplete="off">
+        <div class="panel">
+          <div class="panel-head">
+            <h3>BOARD · 12</h3>
+            <input type="search" id="boardSearch" class="hr-search" placeholder="Search board…" autocomplete="off">
           </div>
-
-          <button id="submit-button" class="primary-button" type="submit" data-i18n="submit">Confirm email and continue</button>
-        </form>
-
-        <div id="status" class="message hidden" role="status" aria-live="polite"></div>
-
-        <section id="success-panel" class="hidden" aria-labelledby="success-title">
-          <h2 id="success-title" data-i18n="successTitle" style="margin:24px 0 8px;font-size:26px">You're all set.</h2>
-          <p id="success-copy" class="lead" data-i18n="successCopy">Your email has been recorded. Use the button below to open the WhatsApp group.</p>
-
-          <!-- No href is ever written here: the URL only lives in a JS closure. -->
-          <a id="group-link" class="group-link hidden" href="#" role="button"
-             data-i18n="groupButton" draggable="false"
-             style="cursor:pointer;-webkit-user-select:none;user-select:none;">Open ATC WhatsApp group</a>
-
-          <p class="small-note" data-i18n="shareNote">Please don't share the group invitation. Group access is for confirmed university members only.</p>
-        </section>
+          <div class="members-grid" id="boardGrid"></div>
+        </div>
       </section>
 
-      <p class="footer" data-i18n="footer">ATC ISB · Algorithmic Trading Club</p>
-      <p class="footer" style="margin-top: -25px;">For help contact <b>HR·</b><a style="color:var(--muted);" info="click me" href="mailto:amelzaweili@gmail.com?subject=ATC%20Membership%20Help"> Amal</a> </p>
+      <!-- ═══ ACTIONS ═══ -->
+      <section class="dash-panel" data-panel="actions">
+        <div class="panel">
+          <div class="panel-head"><h3>NEW ACTION / MARK</h3></div>
+          <form id="actionForm" class="hr-form" autocomplete="off">
+            <div class="hr-form-grid">
+              <label class="hr-field">
+                <span class="hr-label">ACTION NAME *</span>
+                <input type="text" id="actionName" class="hr-input" list="actionNameSuggestions" placeholder="e.g. Hackathon 2026" required>
+                <datalist id="actionNameSuggestions"></datalist>
+              </label>
+              <label class="hr-field">
+                <span class="hr-label">ACTION DATE</span>
+                <input type="date" id="actionDate" class="hr-input">
+              </label>
+              <label class="hr-field">
+                <span class="hr-label">MARK *</span>
+                <select id="actionMark" class="hr-input" required>
+                  <option value="">— select —</option>
+                  <option value="Paid">Paid</option>
+                  <option value="Attended">Attended</option>
+                  <option value="Helpful">Helpful</option>
+                  <option value="Commended">Commended</option>
+                  <option value="Noted">Noted</option>
+                  <option value="Pending">Pending</option>
+                  <option value="Warning">Warning</option>
+                  <option value="No-show">No-show</option>
+                  <option value="Removed">Removed</option>
+                  <option value="__custom">Custom…</option>
+                </select>
+              </label>
+              <label class="hr-field hidden" id="customMarkField">
+                <span class="hr-label">CUSTOM MARK</span>
+                <input type="text" id="customMark" class="hr-input" placeholder="Type custom mark">
+              </label>
+            </div>
+            <label class="hr-field">
+              <span class="hr-label">NOTE <span class="muted">(optional)</span></span>
+              <textarea id="actionNote" class="hr-input" rows="2" placeholder="Context for this mark…"></textarea>
+            </label>
+            <div class="hr-field">
+              <div class="hr-field-header">
+                <span class="hr-label">MEMBERS <span id="actionMemberCount" class="muted"></span></span>
+                <div class="hr-field-header-actions">
+                  <select id="actionAudience" class="compose-select" title="Bulk-add a group">
+                    <option value="">+ Audience…</option>
+                  </select>
+                  <button type="button" class="clear-all-btn hidden" id="clearActionMembers">CLEAR</button>
+                </div>
+              </div>
+              <div class="chips" id="actionMembersChips"></div>
+              <div class="add-recipient">
+                <input id="actionMemberInput" list="allPeopleList" placeholder="Add club member…" autocomplete="off">
+                <button type="button" id="actionMemberAddBtn">ADD</button>
+              </div>
+            </div>
+            <p id="actionErr" class="login-err hidden"></p>
+            <div class="hr-compose-actions">
+              <button type="submit" class="hr-send-btn">MARK ▸</button>
+              <span id="actionStatus" class="status-pill hidden"></span>
+            </div>
+          </form>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <h3>ACTION LOG</h3>
+            <div class="compose-toolbar">
+              <input type="search" id="actionSearch" class="hr-search" placeholder="Search log…" autocomplete="off">
+              <select id="actionFilterName" class="compose-select"><option value="">All actions</option></select>
+              <select id="actionFilterMark" class="compose-select"><option value="">All marks</option></select>
+            </div>
+          </div>
+          <div class="table-scroll"><table id="actionsTable" class="terminal-table mobile-cards"></table></div>
+        </div>
+      </section>
+
+      <!-- ═══ BOARD NOTES ═══ -->
+      <section class="dash-panel" data-panel="boardnotes">
+        <div class="panel">
+          <div class="panel-head"><h3>NEW BOARD RECORD</h3></div>
+          <form id="boardNoteForm" class="hr-form" autocomplete="off">
+            <div class="hr-form-grid">
+              <label class="hr-field">
+                <span class="hr-label">BOARD MEMBER *</span>
+                <select id="boardNoteMember" class="hr-input" required>
+                  <option value="">— select —</option>
+                </select>
+              </label>
+              <label class="hr-field">
+                <span class="hr-label">CATEGORY</span>
+                <select id="boardNoteCategory" class="hr-input">
+                  <option value="Meeting">Meeting</option>
+                  <option value="Task">Task</option>
+                  <option value="Contact">Contact</option>
+                  <option value="Note">Note</option>
+                  <option value="Other">Other</option>
+                </select>
+              </label>
+            </div>
+            <label class="hr-field">
+              <span class="hr-label">NOTE *</span>
+              <textarea id="boardNoteText" class="hr-input" rows="3" placeholder="What happened…" required></textarea>
+            </label>
+            <p id="boardNoteErr" class="login-err hidden"></p>
+            <div class="hr-compose-actions">
+              <button type="submit" class="hr-send-btn">SAVE ▸</button>
+              <span id="boardNoteStatus" class="status-pill hidden"></span>
+            </div>
+          </form>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <h3>BOARD RECORDS</h3>
+            <div class="compose-toolbar">
+              <input type="search" id="boardNoteSearch" class="hr-search" placeholder="Search records…" autocomplete="off">
+              <select id="boardNoteFilterMember" class="compose-select"><option value="">All members</option></select>
+              <select id="boardNoteFilterCategory" class="compose-select"><option value="">All categories</option></select>
+            </div>
+          </div>
+          <div class="table-scroll"><table id="boardNotesTable" class="terminal-table mobile-cards"></table></div>
+        </div>
+      </section>
+
+      <!-- ═══ COMPOSE ═══ -->
+      <section class="dash-panel" data-panel="compose">
+        <div class="panel">
+          <div class="panel-head">
+            <h3>NEW MESSAGE</h3>
+            <div class="compose-toolbar">
+              <select id="templateSelect" class="compose-select"><option value="">Templates…</option></select>
+              <select id="audienceSelect" class="compose-select"><option value="">Add audience…</option></select>
+            </div>
+          </div>
+
+          <div class="compose-sender-notice hidden" id="composeSenderNotice">
+            <span>⚠ No email sender picked.</span>
+            <button type="button" id="pickSenderBtn">Pick now</button>
+          </div>
+
+          <form id="composeForm" class="hr-form" autocomplete="off">
+            <div class="hr-field">
+              <div class="hr-field-header">
+                <span class="hr-label">RECIPIENTS <span id="recipientCount" class="muted"></span></span>
+                <button type="button" class="clear-all-btn hidden" id="clearAllRecipients">CLEAR ALL</button>
+              </div>
+              <div class="chips" id="chips"></div>
+              <div class="add-recipient">
+                <input id="addRecipient" list="allPeopleList" placeholder="Add by name or email…" autocomplete="off">
+                <datalist id="allPeopleList"></datalist>
+                <button type="button" id="addRecipientBtn">ADD</button>
+              </div>
+            </div>
+
+            <label class="hr-field">
+              <span class="hr-label">SUBJECT</span>
+              <input id="subject" type="text" class="hr-input" maxlength="200">
+            </label>
+
+            <div class="hr-field">
+              <span class="hr-label">MESSAGE</span>
+              <div class="editor-wrap">
+                <div class="editor-toolbar" id="editorToolbar">
+                  <button type="button" data-cmd="bold" title="Bold"><b>B</b></button>
+                  <button type="button" data-cmd="italic" title="Italic"><i>I</i></button>
+                  <button type="button" data-cmd="underline" title="Underline"><u>U</u></button>
+                  <span class="tb-sep"></span>
+                  <button type="button" data-cmd="hiliteColor" data-val="#fff3a0" title="Highlight" class="hl-btn">▮</button>
+                  <span class="tb-sep"></span>
+                  <select data-cmd="fontName" title="Font">
+                    <option value="">Font</option>
+                    <option value="Arial, sans-serif">Sans</option>
+                    <option value="Georgia, serif">Serif</option>
+                    <option value="'IBM Plex Mono', monospace">Mono</option>
+                    <option value="'Times New Roman', serif">Times</option>
+                  </select>
+                  <select data-cmd="fontSize" title="Size">
+                    <option value="">Size</option>
+                    <option value="2">Small</option>
+                    <option value="3">Normal</option>
+                    <option value="5">Large</option>
+                    <option value="6">Huge</option>
+                  </select>
+                  <span class="tb-sep"></span>
+                  <button type="button" data-cmd="createLink" title="Insert link">🔗</button>
+                  <button type="button" data-cmd="insertImage" title="Insert image URL">🖼</button>
+                  <span class="tb-sep"></span>
+                  <button type="button" data-cmd="justifyLeft" title="Align left">⇤</button>
+                  <button type="button" data-cmd="justifyCenter" title="Center">↔</button>
+                  <span class="tb-sep"></span>
+                  <button type="button" data-cmd="removeFormat" title="Clear formatting">✕</button>
+                </div>
+                <div class="editor-body" id="editorBody" contenteditable="true" data-placeholder="Write your message…"></div>
+              </div>
+            </div>
+
+            <p id="composeErr" class="login-err hidden"></p>
+
+            <div class="hr-compose-actions">
+              <button type="button" id="previewBtn" class="btn-ghost">👁 PREVIEW</button>
+              <button type="button" id="draftBtn" class="btn-ghost">💾 SAVE DRAFT</button>
+              <button type="button" id="testBtn" class="btn-ghost">📤 TEST TO ME</button>
+              <button type="submit" class="hr-send-btn" id="sendBtn">SEND ▸</button>
+              <span id="sendStatus" class="status-pill hidden"></span>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- ═══ SENT ═══ -->
+      <section class="dash-panel" data-panel="sent">
+        <div class="panel">
+          <div class="panel-head"><h3>SENT</h3><span class="panel-tag" id="sentTag">—</span></div>
+          <div class="table-scroll"><table id="sentTable" class="terminal-table mobile-cards"></table></div>
+        </div>
+      </section>
+
+      <!-- ═══ ACTIVITY / BOARD LOG ═══ -->
+      <section class="dash-panel" data-panel="board">
+        <div class="panel">
+          <div class="panel-head"><h3>EMAIL ACTIVITY</h3><span class="panel-tag" id="boardTag">—</span></div>
+          <div class="table-scroll"><table id="boardStatsTable" class="terminal-table"></table></div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h3>RECENT ATTRIBUTED SENDS</h3><span class="panel-tag">ALL BOARD</span></div>
+          <div class="table-scroll"><table id="boardRecentTable" class="terminal-table mobile-cards"></table></div>
+        </div>
+      </section>
+
     </main>
   </div>
+</div>
 
-<script>
-(function () {
-  "use strict";
+<!-- DRAWER BACKDROP -->
+<div class="drawer-backdrop" id="drawerBackdrop"></div>
 
-  /* ==================================================================
-     1. CONFIG
-     ================================================================== */
+<!-- MEMBER DETAIL MODAL -->
+<div class="modal hidden" id="memberModal" role="dialog" aria-modal="true">
+  <div class="modal-card member-modal-card">
+    <div class="modal-head">
+      <h3 id="memberModalTitle">MEMBER</h3>
+      <button type="button" id="closeMemberModal" aria-label="Close">✕</button>
+    </div>
+    <div class="modal-body" id="memberModalBody">
+      <!-- filled by JS -->
+    </div>
+  </div>
+</div>
 
-  // Paste your Apps Script Web App URL (ends with /exec)
-  var ENDPOINT = "https://script.google.com/macros/s/AKfycbyPFo17z56Yj5vb6O59NjX5oSDUAquJQHLajfiZNL3QO1dSFY9ooXcIxaa3bcjZ4a-N_A/exec";
-  // Must be identical to UNI_LINK_KEY in uni.gs
-  var LINK_KEY = "atc-isb-2026";
+<!-- CONFIRM DIALOG -->
+<div class="modal hidden" id="confirmModal" role="dialog" aria-modal="true">
+  <div class="modal-card confirm-card">
+    <div class="modal-head">
+      <h3>CONFIRM</h3>
+      <button type="button" id="confirmClose" aria-label="Close">✕</button>
+    </div>
+    <div class="modal-body">
+      <p id="confirmMsg" class="confirm-msg">Are you sure?</p>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="modal-cancel" id="confirmCancel">Cancel</button>
+      <button type="button" class="modal-primary danger" id="confirmOk">Delete</button>
+    </div>
+  </div>
+</div>
 
-  /* ==================================================================
-     2. TRANSLATIONS
-     ================================================================== */
+<!-- PREVIEW MODAL -->
+<div class="modal hidden" id="previewModal" role="dialog" aria-modal="true">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h3>EMAIL PREVIEW</h3>
+      <button type="button" id="closePreviewBtn" aria-label="Close">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-meta">
+        <div><span class="key">FROM</span><b id="pvFrom">—</b></div>
+        <div><span class="key">TO</span><b id="pvTo">—</b></div>
+        <div><span class="key">SUBJECT</span><b id="pvSubject">—</b></div>
+      </div>
+      <div class="pv-frame"><iframe id="pvFrame" sandbox="allow-same-origin" referrerpolicy="no-referrer"></iframe></div>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="modal-cancel" id="closePreviewBtn2">Close</button>
+      <button type="button" class="modal-primary" id="sendFromPreviewBtn">Send ▸</button>
+    </div>
+  </div>
+</div>
 
-  var translations = {
-    en: {
-      eyebrow: "MEMBERSHIP CONFIRMATION",
-      title: "Confirm your university email.",
-      lead: "Enter your ISB or IIT university email to continue to the official ATC WhatsApp group.",
-      notice: "WhatsApp group access is intended for university members. Use your university email address, not a personal Gmail or Outlook address.",
-      emailLabel: "University email address",
-      emailHelp: "We make a best-effort check based on the email domain. If your university uses a domain that doesn't include “ISB” or “IIT”, contact the club board.",
-      submit: "Confirm email and continue",
-      submitting: "Submitting…",
-      successTitle: "You're all set.",
-      successCopy: "Your email has been recorded. Use the button below to open the WhatsApp group.",
-      groupButton: "Open ATC WhatsApp group",
-      shareNote: "Please don't share the group invitation. Group access is for confirmed university members only.",
-      footer: "ATC ISB · Algorithmic Trading Club",
-      invalid: "Enter a valid university email address.",
-      domain: "We couldn't identify “ISB” or “IIT” in your email domain. Check the address or contact the club board if this is your official university email.",
-      rate: "Too many attempts from this address. Please try again later.",
-      failed: "We couldn't submit your email right now. Please try again in a moment.",
-      network: "Could not reach the server. Check your connection, or contact the club board if this keeps happening.",
-      noGroup: "Your email was saved, but the WhatsApp group link is not configured yet. Please contact the club board.",
-      recorded: "Email recorded.",
-      already: "This email was already recorded."
-    },
-    fr: {
-      eyebrow: "CONFIRMATION D’ADHÉSION",
-      title: "Confirmez votre e-mail universitaire.",
-      lead: "Saisissez votre adresse universitaire ISB ou IIT pour accéder au groupe WhatsApp officiel de l’ATC.",
-      notice: "L’accès au groupe WhatsApp est réservé aux membres universitaires. Utilisez votre adresse universitaire, et non une adresse Gmail ou Outlook personnelle.",
-      emailLabel: "Adresse e-mail universitaire",
-      emailHelp: "La vérification du domaine est indicative. Si le domaine de votre université ne contient pas « ISB » ou « IIT », contactez le bureau du club.",
-      submit: "Confirmer l’e-mail et continuer",
-      submitting: "Envoi en cours…",
-      successTitle: "C’est fait.",
-      successCopy: "Votre adresse a été enregistrée. Utilisez le bouton ci-dessous pour ouvrir le groupe WhatsApp.",
-      groupButton: "Ouvrir le groupe WhatsApp ATC",
-      shareNote: "Merci de ne pas partager le lien d’invitation. L’accès est réservé aux membres universitaires confirmés.",
-      footer: "ATC ISB · Algorithmic Trading Club",
-      invalid: "Saisissez une adresse e-mail universitaire valide.",
-      domain: "Nous n’avons pas identifié « ISB » ou « IIT » dans le domaine de votre adresse. Vérifiez l’adresse ou contactez le bureau du club si c’est bien votre e-mail universitaire.",
-      rate: "Trop de tentatives depuis cette adresse. Réessayez plus tard.",
-      failed: "Impossible d’envoyer votre adresse pour le moment. Réessayez dans un instant.",
-      network: "Impossible de joindre le serveur. Vérifiez votre connexion ou contactez le bureau du club si le problème persiste.",
-      noGroup: "Votre adresse a été enregistrée, mais le lien WhatsApp n’est pas encore configuré. Contactez le bureau du club.",
-      recorded: "Adresse enregistrée.",
-      already: "Cette adresse a déjà été enregistrée."
-    },
-    ar: {
-      eyebrow: "تأكيد العضوية",
-      title: "أكّد بريدك الإلكتروني الجامعي.",
-      lead: "أدخل بريدك الجامعي التابع لـ ISB أو IIT للانتقال إلى مجموعة ATC الرسمية على واتساب.",
-      notice: "الدخول إلى مجموعة واتساب مخصّص لأعضاء الجامعة. استخدم بريدك الجامعي وليس بريد Gmail أو Outlook شخصيًا.",
-      emailLabel: "البريد الإلكتروني الجامعي",
-      emailHelp: "نتحقق من النطاق بشكل مبدئي. إذا كان نطاق جامعتك لا يحتوي على «ISB» أو «IIT»، يُرجى التواصل مع إدارة النادي.",
-      submit: "تأكيد البريد والمتابعة",
-      submitting: "جارٍ الإرسال…",
-      successTitle: "تم بنجاح.",
-      successCopy: "تم تسجيل بريدك الإلكتروني. استخدم الزر أدناه لفتح مجموعة واتساب.",
-      groupButton: "فتح مجموعة ATC على واتساب",
-      shareNote: "يرجى عدم مشاركة رابط الدعوة. الدخول مخصّص للأعضاء الجامعيين الذين أكدوا بريدهم.",
-      footer: "ATC ISB · نادي التداول الخوارزمي",
-      invalid: "أدخل عنوان بريد جامعي صحيحًا.",
-      domain: "لم نتمكن من العثور على «ISB» أو «IIT» في نطاق بريدك. تحقق من العنوان أو تواصل مع إدارة النادي إذا كان هذا بريدك الجامعي الرسمي.",
-      rate: "محاولات كثيرة من هذا العنوان. يُرجى المحاولة لاحقًا.",
-      failed: "تعذّر إرسال بريدك الآن. حاول مرة أخرى بعد قليل.",
-      network: "تعذّر الوصول إلى الخادم. تحقق من اتصالك، أو تواصل مع إدارة النادي إذا استمرت المشكلة.",
-      noGroup: "تم حفظ بريدك، لكن رابط مجموعة واتساب لم يُضبط بعد. يُرجى التواصل مع إدارة النادي.",
-      recorded: "تم تسجيل البريد الإلكتروني.",
-      already: "تم تسجيل هذا البريد مسبقًا."
-    }
-  };
+<!-- SELECTION BAR -->
+<div class="selection-bar hidden" id="selectionBar">
+  <span class="sel-count"><b id="selCount">0</b> selected</span>
+  <button type="button" id="composeSelectedBtn">✉ MESSAGE</button>
+  <button type="button" id="clearSelectionBtn">✕ CLEAR</button>
+</div>
 
-  /* ==================================================================
-     3. LANGUAGE BOOTSTRAP
-     ================================================================== */
-
-  var supported = ["ar", "fr", "en"];
-  var browserLanguages = (navigator.languages && navigator.languages.length)
-    ? navigator.languages : [navigator.language || "en"];
-  var firstSupported = browserLanguages
-    .map(function (x) { return String(x).toLowerCase().split("-")[0]; })
-    .find(function (x) { return supported.indexOf(x) !== -1; });
-  var lang = firstSupported || "en";
-  var t = translations[lang];
-
-  document.documentElement.lang = lang;
-  document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
-  document.title = lang === "ar" ? "تأكيد البريد الجامعي | ATC ISB" :
-                   lang === "fr" ? "Confirmez votre e-mail universitaire | ATC ISB" :
-                   "Confirm your university email | ATC ISB";
-
-  Array.prototype.forEach.call(document.querySelectorAll("[data-i18n]"), function (el) {
-    var key = el.getAttribute("data-i18n");
-    if (t[key]) el.textContent = t[key];
-  });
-
-  /* ==================================================================
-     4. ELEMENTS
-     ================================================================== */
-
-  var form = document.getElementById("email-form");
-  var emailInput = document.getElementById("university-email");
-  var submitButton = document.getElementById("submit-button");
-  var status = document.getElementById("status");
-  var successPanel = document.getElementById("success-panel");
-  var successCopy = document.getElementById("success-copy");
-  var groupLink = document.getElementById("group-link");
-  var honeypot = document.getElementById("website");
-
-  // The group URL lives ONLY here, in memory. It is never written to the DOM.
-  var savedGroupUrl = null;
-
-  function showMessage(message, type) {
-    status.textContent = message;
-    status.className = "message " + type;
-  }
-
-  /* ==================================================================
-     5. LINK DE-OBFUSCATION (must mirror uniEncodeLink_() in uni.gs)
-     ================================================================== */
-
-  function decodeLink(token) {
-    var raw = atob(token);
-    var bytes = new Uint8Array(raw.length);
-    for (var i = 0; i < raw.length; i++) bytes[i] = raw.charCodeAt(i);
-    for (var j = 0; j < bytes.length; j++) {
-      bytes[j] = bytes[j] ^ LINK_KEY.charCodeAt(j % LINK_KEY.length);
-    }
-    return new TextDecoder("utf-8").decode(bytes);
-  }
-
-  /* ==================================================================
-     6. SUBMIT
-     ================================================================== */
-
-  form.addEventListener("submit", function (event) {
-    event.preventDefault();
-    status.className = "message hidden";
-
-    var email = emailInput.value.trim().toLowerCase();
-
-    if (!emailInput.checkValidity() || !email) {
-      showMessage(t.invalid, "error");
-      emailInput.focus();
-      return;
-    }
-
-    submitButton.disabled = true;
-    submitButton.textContent = t.submitting;
-
-    // NOTE: "text/plain" keeps this a *simple* CORS request, so the browser
-    // does not send a preflight OPTIONS — which Apps Script cannot answer.
-    fetch(ENDPOINT, {
-      method: "POST",
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify({
-        email: email,
-        language: lang,
-        website: honeypot ? honeypot.value : ""
-      }),
-      redirect: "follow"
-    })
-      .then(function (response) {
-        if (!response.ok) throw new Error("HTTP " + response.status);
-        return response.json();
-      })
-      .then(function (result) {
-        submitButton.disabled = false;
-        submitButton.textContent = t.submit;
-
-        if (!result || !result.ok) {
-          var code = result && result.code;
-          if (code === "DOMAIN") showMessage(t.domain, "error");
-          else if (code === "RATE") showMessage(t.rate, "error");
-          else if (code === "INVALID") showMessage(t.invalid, "error");
-          else showMessage(t.failed, "error");
-          return;
-        }
-
-        form.classList.add("hidden");
-        successPanel.classList.remove("hidden");
-
-        if (result.token) {
-          try {
-            savedGroupUrl = decodeLink(result.token);
-            groupLink.classList.remove("hidden");
-          } catch (err) {
-            savedGroupUrl = null;
-          }
-        }
-
-        if (!savedGroupUrl) {
-          groupLink.classList.add("hidden");
-          successCopy.textContent = t.noGroup;
-        }
-
-        showMessage(result.existing ? t.already : t.recorded, "success");
-      })
-      .catch(function (err) {
-        submitButton.disabled = false;
-        submitButton.textContent = t.submit;
-        // Browsers surface CORS and offline failures identically as
-        // "TypeError: Failed to fetch" — show a network-flavoured message
-        // so the user has an actionable hint instead of "try again".
-        var msg = err && err.message ? String(err.message) : "";
-        if (/Failed to fetch|NetworkError|Load failed|CORS/i.test(msg)) {
-          showMessage(t.network, "error");
-        } else {
-          showMessage(t.failed, "error");
-        }
-      });
-  });
-
-  /* ==================================================================
-     7. HARDENED GROUP BUTTON
-     The <a> has href="#" forever, so "Copy link address" copies nothing
-     useful. The real URL is only used at click time, programmatically.
-     ================================================================== */
-
-  groupLink.addEventListener("click", function (event) {
-    event.preventDefault();
-    event.stopPropagation();
-    if (!savedGroupUrl) return;
-
-    var win = window.open(savedGroupUrl, "_blank", "noopener,noreferrer");
-    if (!win) window.location.href = savedGroupUrl; // popup blocked fallback
-  });
-
-  // Block right-click / copy / drag so the URL never leaks via the browser
-  // UI. Note: mousedown is intentionally NOT blocked — preventDefault() on
-  // mousedown can suppress the following click in Firefox.
-  groupLink.addEventListener("contextmenu", function (e) { e.preventDefault(); });
-  groupLink.addEventListener("dragstart", function (e) { e.preventDefault(); });
-  groupLink.addEventListener("copy", function (e) { e.preventDefault(); });
-
-  // Extra safety: wipe the in-memory link when the tab is hidden for good.
-  window.addEventListener("pagehide", function () { savedGroupUrl = null; });
-})();
-</script>
+<script src="assets/js/config.js"></script>
+<script src="assets/js/hr.js"></script>
 </body>
 </html>

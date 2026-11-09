@@ -1,14 +1,15 @@
 var UNI_SPREADSHEET_ID     = "1FQJgt1ryyqBoaw5fZInjdSoVVuLqgerQ5XsvVrs12Gw";
 var UNI_SHEET_NAME         = "unimail";
 var UNI_GROUP_URL_FALLBACK = "https://chat.whatsapp.com/CraYVK5ZPRJEVBtT9PE9dw";
-var UNI_LINK_KEY           = "atc-isb-2026";   // must match LINK_KEY in the HTML
+var UNI_LINK_KEY           = "atc-isb-2026";   // must match LINK_KEY in confirm.html
 var UNI_DOMAIN_KEYWORDS    = ["isb", "iit", "rnu", "nau", "npu"];
 var UNI_RATE_WINDOW_SECONDS = 600;
 var UNI_RATE_MAX_ATTEMPTS   = 5;
 
 /* ============================== ENTRY POINTS ======================== */
 /* Apps Script only auto-invokes functions named exactly doPost / doGet.
-   Everything else is ignored by the runtime, so these wrappers MUST exist. */
+   Without these wrappers, the /exec URL returns an HTML error page and the
+   browser reports a CORS error because that error page has no CORS headers. */
 
 function doPost(e) {
   return uniDoPost(e);
@@ -155,7 +156,7 @@ function uniSetupSheet() {
 }
 
 function uniTestSubmission() {
-  var res = doPost({                             // ← test through the real entry point
+  var res = doPost({
     postData: {
       contents: JSON.stringify({
         email: "student@isb.rnu.tn",

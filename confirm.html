@@ -60,6 +60,7 @@
     </main>
   </div>
 
+<script src="config.js"></script>
 <script>
 (function () {
   "use strict";
@@ -68,9 +69,12 @@
      1. CONFIG
      ================================================================== */
 
-  // Paste your Apps Script Web App URL (ends with /exec)
-  var ENDPOINT = "https://script.google.com/macros/s/AKfycbyPFo17z56Yj5vb6O59NjX5oSDUAquJQHLajfiZNL3QO1dSFY9ooXcIxaa3bcjZ4a-N_A/exec"
-  // Must be identical to LINK_KEY in uni.gs
+  // Single source of truth: config.js. Fallback matches the same URL so
+  // this page still works if config.js fails to load.
+  var ENDPOINT = (window.ATC_CONFIG && window.ATC_CONFIG.APPS_SCRIPT_URL)
+    || "https://script.google.com/macros/s/AKfycbxQrL7GoisUvt-_blpNlueNxmxv9-o2SPZlV5vUJua-mLSgZts4Ay2GHLnT6KD30TjRvQ/exec";
+
+  // Must be identical to UNI_LINK_KEY in uni.gs
   var LINK_KEY = "atc-isb-2026";
 
   /* ==================================================================
@@ -96,6 +100,7 @@
       domain: "We couldn't identify “ISB” or “IIT” in your email domain. Check the address or contact the club board if this is your official university email.",
       rate: "Too many attempts from this address. Please try again later.",
       failed: "We couldn't submit your email right now. Please try again in a moment.",
+      network: "Could not reach the server. Check your connection, or contact the club board if this keeps happening.",
       noGroup: "Your email was saved, but the WhatsApp group link is not configured yet. Please contact the club board.",
       recorded: "Email recorded.",
       already: "This email was already recorded."
@@ -118,6 +123,7 @@
       domain: "Nous n’avons pas identifié « ISB » ou « IIT » dans le domaine de votre adresse. Vérifiez l’adresse ou contactez le bureau du club si c’est bien votre e-mail universitaire.",
       rate: "Trop de tentatives depuis cette adresse. Réessayez plus tard.",
       failed: "Impossible d’envoyer votre adresse pour le moment. Réessayez dans un instant.",
+      network: "Impossible de joindre le serveur. Vérifiez votre connexion ou contactez le bureau du club si le problème persiste.",
       noGroup: "Votre adresse a été enregistrée, mais le lien WhatsApp n’est pas encore configuré. Contactez le bureau du club.",
       recorded: "Adresse enregistrée.",
       already: "Cette adresse a déjà été enregistrée."
@@ -140,6 +146,7 @@
       domain: "لم نتمكن من العثور على «ISB» أو «IIT» في نطاق بريدك. تحقق من العنوان أو تواصل مع إدارة النادي إذا كان هذا بريدك الجامعي الرسمي.",
       rate: "محاولات كثيرة من هذا العنوان. يُرجى المحاولة لاحقًا.",
       failed: "تعذّر إرسال بريدك الآن. حاول مرة أخرى بعد قليل.",
+      network: "تعذّر الوصول إلى الخادم. تحقق من اتصالك، أو تواصل مع إدارة النادي إذا استمرت المشكلة.",
       noGroup: "تم حفظ بريدك، لكن رابط مجموعة واتساب لم يُضبط بعد. يُرجى التواصل مع إدارة النادي.",
       recorded: "تم تسجيل البريد الإلكتروني.",
       already: "تم تسجيل هذا البريد مسبقًا."
@@ -192,7 +199,7 @@
   }
 
   /* ==================================================================
-     5. LINK DE-OBFUSCATION (must mirror encodeLink_() in uni.gs)
+     5. LINK DE-OBFUSCATION (must mirror uniEncodeLink_() in uni.gs)
      ================================================================== */
 
   function decodeLink(token) {
@@ -272,17 +279,20 @@
 
         showMessage(result.existing ? t.already : t.recorded, "success");
       })
-      .catch(function () {
+      .catch(function (err) {
         submitButton.disabled = false;
         submitButton.textContent = t.submit;
-        showMessage(t.failed, "error");
+        var msg = err && err.message ? String(err.message) : "";
+        if (/Failed to fetch|NetworkError|Load failed|CORS/i.test(msg)) {
+          showMessage(t.network, "error");
+        } else {
+          showMessage(t.failed, "error");
+        }
       });
   });
 
   /* ==================================================================
      7. HARDENED GROUP BUTTON
-     The <a> has href="#" forever, so "Copy link address" copies nothing
-     useful. The real URL is only used at click time, programmatically.
      ================================================================== */
 
   groupLink.addEventListener("click", function (event) {
@@ -291,15 +301,13 @@
     if (!savedGroupUrl) return;
 
     var win = window.open(savedGroupUrl, "_blank", "noopener,noreferrer");
-    if (!win) window.location.href = savedGroupUrl; // popup blocked fallback
+    if (!win) window.location.href = savedGroupUrl;
   });
 
   groupLink.addEventListener("contextmenu", function (e) { e.preventDefault(); });
   groupLink.addEventListener("dragstart", function (e) { e.preventDefault(); });
-  groupLink.addEventListener("mousedown", function (e) { e.preventDefault(); });
   groupLink.addEventListener("copy", function (e) { e.preventDefault(); });
 
-  // Extra safety: wipe the in-memory link when the tab is hidden for good.
   window.addEventListener("pagehide", function () { savedGroupUrl = null; });
 })();
 </script>

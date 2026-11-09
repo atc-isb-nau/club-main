@@ -27,14 +27,132 @@
   const HR_SENDER_IDX = BOARD.map((b, i) => /HR/i.test(b.role) ? i : -1).filter(i => i >= 0);
 
   const TEMPLATES = [
-    { id: 'welcome', label: 'Welcome', subject: 'Welcome to the Algorithmic Trading Club',
-      body: '<p>Hi there,</p><p>Welcome aboard — glad to have you with us.</p><p>Our next session is <b>[date, time]</b> at <b>[location]</b>. Bring a laptop if you can.</p><p>See you there,<br>— Algorithmic Trading Club</p>' },
-    { id: 'event', label: 'Event invite', subject: 'You\'re invited: [Event name]',
-      body: '<p>Hi,</p><p>We\'re hosting <b>[Event name]</b> on <b>[date]</b> at <b>[time]</b>.</p><p>Where: <b>[location]</b><br>What: [short description]</p><p>RSVP by replying to this email.</p><p>— Algorithmic Trading Club</p>' },
-    { id: 'reminder', label: 'Meeting reminder', subject: 'Reminder: [Event] tomorrow',
-      body: '<p>Hi,</p><p>Quick reminder that <b>[Event]</b> is happening <b>tomorrow at [time]</b> in <b>[location]</b>.</p><p>See you there.<br>— Algorithmic Trading Club</p>' },
-    { id: 'thankyou', label: 'Thank you', subject: 'Thanks for joining us',
-      body: '<p>Hi,</p><p>Thank you for coming to <b>[Event]</b>. It was great having you with us.</p><p>If you have any questions or want to get involved more, just reply.</p><p>— Algorithmic Trading Club</p>' }
+    {
+      id: 'welcome',
+      label: 'Welcome',
+      subject: 'Welcome to the Algorithmic Trading Club',
+      body:
+        '<p>Hi [name],</p>' +
+        '<p>Welcome aboard — glad to have you with us.</p>' +
+        '<p>Our next session is <b>[date]</b> at <b>[time]</b> in <b>[location]</b>. Bring a laptop if you can.</p>' +
+        '<p>See you there,<br>— Algorithmic Trading Club</p>'
+    },
+    {
+      id: 'event',
+      label: 'Event invite',
+      subject: 'You\'re invited: [event]',
+      body:
+        '<p>Hi [name],</p>' +
+        '<p>We\'re hosting <b>[event]</b> on <b>[date]</b> at <b>[time]</b>.</p>' +
+        '<p>Where: <b>[location]</b><br>What: [description]</p>' +
+        '<p>RSVP by replying to this email.</p>' +
+        '<p>— Algorithmic Trading Club</p>'
+    },
+    {
+      id: 'reminder',
+      label: 'Meeting reminder',
+      subject: 'Reminder: [event] tomorrow',
+      body:
+        '<p>Hi [name],</p>' +
+        '<p>Quick reminder that <b>[event]</b> is happening <b>tomorrow at [time]</b> in <b>[location]</b>.</p>' +
+        '<p>See you there.<br>— Algorithmic Trading Club</p>'
+    },
+    {
+      id: 'thankyou',
+      label: 'Thank you',
+      subject: 'Thanks for joining us',
+      body:
+        '<p>Hi [name],</p>' +
+        '<p>Thank you for coming to <b>[event]</b>. It was great having you with us.</p>' +
+        '<p>If you have any questions or want to get involved more, just reply.</p>' +
+        '<p>— Algorithmic Trading Club</p>'
+    },
+    {
+      id: 'followup',
+      label: 'Post-event follow-up',
+      subject: 'Slides and code from [event]',
+      body:
+        '<p>Hi [name],</p>' +
+        '<p>Thanks again for attending <b>[event]</b>. As promised, here are the materials:</p>' +
+        '<ul><li>Slides: <b>[link]</b></li><li>Notebook / code: <b>[link]</b></li></ul>' +
+        '<p>Have a question about anything we covered? Just reply to this email.</p>' +
+        '<p>— Algorithmic Trading Club</p>'
+    },
+    {
+      id: 'workshop',
+      label: 'Workshop announcement',
+      subject: 'Hands-on workshop: [topic]',
+      body:
+        '<p>Hi [name],</p>' +
+        '<p>We\'re running a hands-on workshop on <b>[topic]</b> on <b>[date]</b> from <b>[time]</b> in <b>[location]</b>.</p>' +
+        '<p>We\'ll cover: [description]</p>' +
+        '<p>Prerequisites: a laptop with Python installed. No prior experience needed.</p>' +
+        '<p>Spots are limited — reply to reserve yours.</p>' +
+        '<p>— Algorithmic Trading Club</p>'
+    },
+    {
+      id: 'recruitment',
+      label: 'Join the team',
+      subject: 'Applications open: join the Algorithmic Trading Club team',
+      body:
+        '<p>Hi [name],</p>' +
+        '<p>We\'re looking for new team members to help run the club — research, events, and outreach.</p>' +
+        '<p>Applications close on <b>[date]</b>. Apply here: <b>[link]</b></p>' +
+        '<p>Questions? Reply to this email and we\'ll get back to you.</p>' +
+        '<p>— Algorithmic Trading Club</p>'
+    },
+    {
+      id: 'newsletter',
+      label: 'Monthly digest',
+      subject: 'Algorithmic Trading Club — [month] digest',
+      body:
+        '<p>Hi [name],</p>' +
+        '<p>Here\'s what happened this month and what\'s coming up:</p>' +
+        '<ul><li><b>Recap:</b> [description]</li><li><b>Next event:</b> [event] on [date] at [time]</li><li><b>Reading:</b> [description]</li></ul>' +
+        '<p>See you at the next session.</p>' +
+        '<p>— Algorithmic Trading Club</p>'
+    },
+    {
+      id: 'sponsor',
+      label: 'Sponsorship outreach',
+      subject: 'Partnership with the Algorithmic Trading Club',
+      body:
+        '<p>Hi [name],</p>' +
+        '<p>I\'m reaching out on behalf of the Algorithmic Trading Club. We run regular sessions on quantitative research and systematic trading for [description] members.</p>' +
+        '<p>We\'d love to explore a partnership — sponsoring a session or a semester of events. Would you be open to a short call on <b>[date]</b>?</p>' +
+        '<p>— Algorithmic Trading Club</p>'
+    },
+    {
+      id: 'cancellation',
+      label: 'Cancellation / postponement',
+      subject: 'Update: [event] has been [description]',
+      body:
+        '<p>Hi [name],</p>' +
+        '<p>Unfortunately, <b>[event]</b> scheduled for <b>[date]</b> has been [description].</p>' +
+        '<p>We\'ll share the new date as soon as it\'s confirmed. Sorry for the short notice.</p>' +
+        '<p>— Algorithmic Trading Club</p>'
+    },
+    {
+      id: 'feedback',
+      label: 'Feedback survey',
+      subject: 'Two minutes to help us improve?',
+      body:
+        '<p>Hi [name],</p>' +
+        '<p>Thanks for coming to <b>[event]</b>. We\'d love your feedback so we can make the next one better:</p>' +
+        '<p><b>[link]</b></p>' +
+        '<p>It takes about two minutes. Thanks in advance.</p>' +
+        '<p>— Algorithmic Trading Club</p>'
+    },
+    {
+      id: 'social',
+      label: 'Social meetup',
+      subject: 'Casual meetup on [date]',
+      body:
+        '<p>Hi [name],</p>' +
+        '<p>No talks, no slides — just a casual meetup on <b>[date]</b> at <b>[time]</b> at <b>[location]</b>.</p>' +
+        '<p>Come chat about markets, models, or anything else. Bring a friend if you like.</p>' +
+        '<p>— Algorithmic Trading Club</p>'
+    }
   ];
 
   const AUDIENCES = [
@@ -48,6 +166,19 @@
   ];
 
   const NOTE_SEP = '[[NOTE]]';
+
+function fillTemplate(template, values = {}) {
+  const fill = (str) =>
+    str.replace(/\[([a-z]+)\]/gi, (match, key) => {
+      const k = key.toLowerCase();
+      return k in values ? escapeHtml(values[k]) : match;
+    });
+  return {
+    ...template,
+    subject: fill(template.subject),
+    body: fill(template.body)
+  };
+}
 
   /* ───────── utils ───────── */
   const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
@@ -65,19 +196,24 @@
     if (isNaN(d)) return '—';
     return pad(d.getDate()) + '/' + pad(d.getMonth() + 1) + '/' + d.getFullYear();
   };
-  const relativeTime = ts => {
-    const d = ts instanceof Date ? ts : new Date(ts);
-    if (isNaN(d)) return '—';
-    const diff = Date.now() - d.getTime();
-    const m = Math.floor(diff / 60000);
-    if (m < 1) return 'just now';
-    if (m < 60) return m + 'm ago';
-    const h = Math.floor(m / 60);
-    if (h < 24) return h + 'h ago';
-    const days = Math.floor(h / 24);
-    if (days < 30) return days + 'd ago';
-    return pad(d.getDate()) + '/' + pad(d.getMonth() + 1);
-  };
+  // Fill placeholders. Values are HTML-escaped so user input can't inject markup.
+  const escapeHtml = (s) =>
+  String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+  const getTemplate = (id) => TEMPLATES.find((t) => t.id === id) ?? null;
+    const relativeTime = ts => {
+      const d = ts instanceof Date ? ts : new Date(ts);
+      if (isNaN(d)) return '—';
+      const diff = Date.now() - d.getTime();
+      const m = Math.floor(diff / 60000);
+      if (m < 1) return 'just now';
+      if (m < 60) return m + 'm ago';
+      const h = Math.floor(m / 60);
+      if (h < 24) return h + 'h ago';
+      const days = Math.floor(h / 24);
+      if (days < 30) return days + 'd ago';
+      return pad(d.getDate()) + '/' + pad(d.getMonth() + 1);
+    };
   const initials = name => String(name || '').replace(/[^A-Za-z\u00C0-\u024F ]/g, '')
     .split(/\s+/).filter(Boolean).map(w => w[0]).slice(0, 2).join('').toUpperCase() || '·';
   const hashStr = s => { let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0; return Math.abs(h); };

@@ -1,28 +1,46 @@
-const VALID_STAFF_CODES = ['3.14159', 'ATC-STAFF-2026'];
+const VALID_STAFF_CODES = ['atc-tn-2026-7Q4m', 'ATC-STAFF-2026'];
 
 const TABS = {
-  Signups: ['Timestamp', 'Name', 'Education', 'Email', 'Why they want to join'],
+  Signups: ['Timestamp', 'Name', 'Education', 'Email', 'Why they want to join', 'Notes'],
   Results: ['Timestamp', 'Name', 'Email', 'Education', 'Why they want to join', 'Game', 'Field', 'Score', 'Total', 'Result', 'Details']
 };
 
 function doGet(e) {
-  const params = (e && e.parameter) || {};
-  if (params.action === 'dashboard') return Dashboard_getData_(params.key);
-  if (params.action === 'hr')        return HR_getData_(params.key);
   return json_({ ok: true, service: 'ATC club backend' });
 }
 
 function doPost(e) {
-  const lock = LockService.getScriptLock();
-  lock.waitLock(10000);
+  let d;
   try {
-    const d = JSON.parse(e.postData.contents);
+    d = JSON.parse(e.postData.contents);
+  } catch (err) {
+    return json_({ ok: false, error: String(err) });
+  }
 
-    // HR routes — key-authenticated, not visitor-rate-limited
-    if (d.type === 'hr_email')        return HR_sendEmail_(d);
-    if (d.type === 'hr_invoice_paid') return HR_markInvoicePaid_(d);
+  // HR routes — key-authenticated, not visitor-rate-limited
+  if (d.type === 'hr_email') return HR_withScriptLock_(function () { return HR_sendEmail_(d); });
+  if (d.type === 'hr_invoice_paid') return HR_withScriptLock_(function () { return HR_markInvoicePaid_(d); });
 
-    // ...rest of existing doPost (signup / result) unchanged...
+  // Phase 2 routes — all auth via POST body, no GET query strings
+  if (d.type === 'uni_confirm')          return uniDoPost(e);
+  if (d.type === 'dashboard_read')       return Dashboard_getData_(d.key);
+  if (d.type === 'hr_read')              return HR_getData_(d.key);
+  if (d.type === 'hr_note_add')          return HR_noteAdd_(d);
+  if (d.type === 'hr_note_edit')         return HR_noteEdit_(d);
+  if (d.type === 'hr_note_delete')       return HR_noteDelete_(d);
+  if (d.type === 'hr_member_delete')     return HR_memberDelete_(d);
+  if (d.type === 'hr_member_restore')    return HR_memberRestore_(d);
+  if (d.type === 'hr_action_add')        return HR_actionAdd_(d);
+  if (d.type === 'hr_action_delete')     return HR_actionDelete_(d);
+  if (d.type === 'hr_board_note_add')    return HR_boardNoteAdd_(d);
+  if (d.type === 'hr_board_note_delete') return HR_boardNoteDelete_(d);
+
+  // Visitor writes retain their original rate limiting and lock behavior.
+  const lock = LockService.getScriptLock();
+  let locked = false;
+  try {
+    lock.waitLock(10000);
+    locked = true;
     const now = new Date();
     const bypass = typeof d.staffCode === 'string' && VALID_STAFF_CODES.indexOf(d.staffCode.trim()) !== -1;
     const subtype = d.type === 'result'
@@ -51,7 +69,7 @@ function doPost(e) {
   } catch (err) {
     return json_({ ok: false, error: String(err) });
   } finally {
-    lock.releaseLock();
+    if (locked) lock.releaseLock();
   }
 }
 

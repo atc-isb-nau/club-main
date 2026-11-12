@@ -1,8 +1,8 @@
 /**
  * HR / invoicing endpoints for hr.html.
  *
- * Reads:  GET  ?action=hr&key=<staff password>
- *         → { ok, emails: [...], invoices: [...], members: [...] }
+ * Reads:  POST { type:'hr_read', key }
+ *         → { ok, emails: [...], invoices: [...], actions: [...], boardNotes: [...], members: [...] }
  *
  * Writes: POST { type:'hr_email', key, recipients:[{email,name},…],
  *                subject, htmlBody, plainBody, sender:{name,email},
@@ -12,7 +12,9 @@
 
 const HR_TABS = {
   Emails:   ['Timestamp','To Email','To Name','Subject','Body','Status','Error','Invoice No','Sent By','Sent By Email'],
-  Invoices: ['Timestamp','Invoice No','To Email','To Name','Amount','Currency','Description','Status','Sent At']
+  Invoices: ['Timestamp','Invoice No','To Email','To Name','Amount','Currency','Description','Status','Sent At'],
+  Actions: ['Timestamp','ID','Action Name','Action Date','Member Email','Member Name','Mark','Note','By'],
+  BoardNotes: ['Timestamp','ID','Board Member','Category','Note','By']
 };
 
 function HR_getData_(providedKey) {
@@ -24,8 +26,10 @@ function HR_getData_(providedKey) {
       ok: true,
       generatedAt: new Date().toISOString(),
       members: HR_readSignups_(),
-      emails:  HR_readTab_('Emails'),
-      invoices:HR_readTab_('Invoices')
+      emails:    HR_readTab_('Emails'),
+      invoices:  HR_readTab_('Invoices'),
+      actions:   HR_readTab_('Actions'),
+      boardNotes:HR_readTab_('BoardNotes')
     });
   } catch (err) {
     return json_({ ok: false, error: String(err) });
@@ -65,19 +69,21 @@ function HR_getTab_(name) {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   let sh = ss.getSheetByName(name);
   const headers = HR_TABS[name];
+  if (!headers) throw new Error('Unknown HR tab: ' + name);
   if (!sh) {
     sh = ss.insertSheet(name);
     sh.appendRow(headers);
-    sh.setFrozenRows(1);
     sh.getRange(1, 1, 1, headers.length).setFontWeight('bold');
+    sh.setFrozenRows(1);
     return sh;
   }
-  // Ensure every header exists (older sheets created before new columns were added)
-  const cur = sh.getRange(1, 1, 1, Math.max(sh.getLastColumn(), headers.length)).getValues()[0];
-  let needUpdate = false;
-  headers.forEach(function (h, i) { if (!cur[i]) needUpdate = true; });
-  if (needUpdate) {
-    sh.getRange(1, 1, 1, headers.length).setValues([headers]).setFontWeight('bold');
+  const last = Math.max(sh.getLastColumn(), headers.length);
+  const cur = sh.getRange(1, 1, 1, last).getValues()[0];
+  const lower = cur.map(v => String(v || '').trim().toLowerCase());
+  const missing = headers.filter(h => lower.indexOf(h.toLowerCase()) === -1);
+  if (missing.length) {
+    const start = sh.getLastColumn() + 1;
+    missing.forEach((h, i) => sh.getRange(1, start + i).setValue(h).setFontWeight('bold'));
   }
   return sh;
 }
@@ -229,4 +235,220 @@ function HR_makeInvoiceNo_() {
   const ymd  = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyyMMdd');
   const rand = Math.floor(1000 + Math.random() * 9000);
   return 'INV-' + ymd + '-' + rand;
+}
+
+/* ========================== PHASE 2 HR WRITES ======================= */
+
+const NOTE_SEP = '[[NOTE]]';
+
+function HR_withScriptLock_(work) {
+  const lock = LockService.getScriptLock();
+  let locked = false;
+  try {
+    lock.waitLock(10000);
+    locked = true;
+    return work();
+  } catch (err) {
+    return json_({ ok: false, error: String(err) });
+  } finally {
+    if (locked) lock.releaseLock();
+  }
+}
+
+function HR_readNotes_(raw) {
+  const str = String(raw || '').trim();
+  if (!str) return [];
+  return str.split(NOTE_SEP).map(s => {
+    try { return JSON.parse(s); } catch (e) { return null; }
+  }).filter(Boolean);
+}
+
+function HR_writeNotes_(notes) {
+  return notes.map(n => JSON.stringify(n)).join(NOTE_SEP);
+}
+
+function HR_findSignupRow_(email) {
+  const sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Signups');
+  if (!sh) return { sh: null, row: -1 };
+  const last = sh.getLastRow();
+  if (last < 2) return { sh, row: -1 };
+  const emails = sh.getRange(2, 4, last - 1, 1).getValues();
+  const target = String(email || '').trim().toLowerCase();
+  for (let i = 0; i < emails.length; i++) {
+    if (String(emails[i][0] || '').trim().toLowerCase() === target) return { sh, row: i + 2 };
+  }
+  return { sh, row: -1 };
+}
+
+function HR_noteAdd_(d) {
+  if (String(d.key || '').trim() !== DASHBOARD_KEY) return json_({ ok: false, error: 'Unauthorized' });
+  return HR_withScriptLock_(function () {
+    const found = HR_findSignupRow_(d.email);
+    if (!found.sh || found.row < 0) return json_({ ok: false, error: 'Member not found' });
+    const current = HR_readNotes_(found.sh.getRange(found.row, 6).getValue());
+    // The current UI's delete-note undo sends the original object as `note`.
+    const restore = d.note && typeof d.note === 'object' ? d.note : null;
+    const note = restore ? {
+      id: String(restore.id || ('n_' + Utilities.getUuid().slice(0, 12))),
+      text: String(restore.text || d.text || '').trim(),
+      by: String(restore.by || d.by || 'HR'),
+      ts: String(restore.ts || new Date().toISOString())
+    } : {
+      id: 'n_' + Utilities.getUuid().slice(0, 12),
+      text: String(d.text || '').trim(),
+      by: String(d.by || 'HR'),
+      ts: new Date().toISOString()
+    };
+    if (!note.text) return json_({ ok: false, error: 'Note text is required' });
+    current.push(note);
+    found.sh.getRange(found.row, 6).setValue(HR_writeNotes_(current));
+    return json_({ ok: true, note });
+  });
+}
+
+function HR_noteEdit_(d) {
+  if (String(d.key || '').trim() !== DASHBOARD_KEY) return json_({ ok: false, error: 'Unauthorized' });
+  return HR_withScriptLock_(function () {
+    const found = HR_findSignupRow_(d.email);
+    if (!found.sh || found.row < 0) return json_({ ok: false, error: 'Member not found' });
+    const notes = HR_readNotes_(found.sh.getRange(found.row, 6).getValue());
+    const note = notes.find(n => n.id === d.noteId);
+    if (!note) return json_({ ok: false, error: 'Note not found' });
+    const text = String(d.text || '').trim();
+    if (!text) return json_({ ok: false, error: 'Note text is required' });
+    note.text = text;
+    found.sh.getRange(found.row, 6).setValue(HR_writeNotes_(notes));
+    return json_({ ok: true });
+  });
+}
+
+function HR_noteDelete_(d) {
+  if (String(d.key || '').trim() !== DASHBOARD_KEY) return json_({ ok: false, error: 'Unauthorized' });
+  return HR_withScriptLock_(function () {
+    const found = HR_findSignupRow_(d.email);
+    if (!found.sh || found.row < 0) return json_({ ok: false, error: 'Member not found' });
+    const notes = HR_readNotes_(found.sh.getRange(found.row, 6).getValue());
+    const remaining = notes.filter(n => n.id !== d.noteId);
+    if (remaining.length === notes.length) return json_({ ok: false, error: 'Note not found' });
+    found.sh.getRange(found.row, 6).setValue(HR_writeNotes_(remaining));
+    return json_({ ok: true });
+  });
+}
+
+function HR_memberDelete_(d) {
+  if (String(d.key || '').trim() !== DASHBOARD_KEY) return json_({ ok: false, error: 'Unauthorized' });
+  return HR_withScriptLock_(function () {
+    const found = HR_findSignupRow_(d.email);
+    if (!found.sh || found.row < 0) return json_({ ok: false, error: 'Member not found' });
+    const headers = TABS.Signups;
+    const values = found.sh.getRange(found.row, 1, 1, headers.length).getValues()[0];
+    const member = {};
+    headers.forEach((header, i) => { member[header] = values[i]; });
+    found.sh.deleteRow(found.row);
+
+    const actions = HR_getTab_('Actions');
+    const last = actions.getLastRow();
+    if (last >= 2) {
+      const emailCol = HR_TABS.Actions.indexOf('Member Email') + 1;
+      const rows = actions.getRange(2, emailCol, last - 1, 1).getValues();
+      const target = String(d.email || '').trim().toLowerCase();
+      const removeRows = [];
+      rows.forEach((row, i) => {
+        if (String(row[0] || '').trim().toLowerCase() === target) removeRows.push(i + 2);
+      });
+      removeRows.reverse().forEach(row => actions.deleteRow(row));
+    }
+    return json_({ ok: true, member });
+  });
+}
+
+function HR_memberRestore_(d) {
+  if (String(d.key || '').trim() !== DASHBOARD_KEY) return json_({ ok: false, error: 'Unauthorized' });
+  return HR_withScriptLock_(function () {
+    const member = d.member || {};
+    const email = String(member.Email || '').trim();
+    if (!email) return json_({ ok: false, error: 'Member email is required' });
+    const sh = getTab_('Signups');
+    const values = [
+      member.Timestamp || new Date(), member.Name || '', member.Education || '', email,
+      member['Why they want to join'] || '', member.Notes || ''
+    ];
+    sh.appendRow(clean_(values));
+    return json_({ ok: true });
+  });
+}
+
+function HR_actionAdd_(d) {
+  if (String(d.key || '').trim() !== DASHBOARD_KEY) return json_({ ok: false, error: 'Unauthorized' });
+  return HR_withScriptLock_(function () {
+    const marks = Array.isArray(d.marks) ? d.marks : [];
+    if (!marks.length) return json_({ ok: false, error: 'No action recipients' });
+    const sh = HR_getTab_('Actions');
+    const now = new Date();
+    const ids = marks.map(mark => 'a_' + Utilities.getUuid().slice(0, 12));
+    marks.forEach((mark, i) => {
+      sh.appendRow(clean_([
+        now, ids[i], String(d.actionName || ''), d.actionDate || '',
+        String((mark && mark.email) || '').trim().toLowerCase(), String((mark && mark.name) || ''),
+        String(d.mark || ''), String(d.note || ''), String(d.by || 'HR')
+      ]));
+    });
+    return json_({ ok: true, ids });
+  });
+}
+
+function HR_actionDelete_(d) {
+  if (String(d.key || '').trim() !== DASHBOARD_KEY) return json_({ ok: false, error: 'Unauthorized' });
+  return HR_withScriptLock_(function () {
+    const sh = HR_getTab_('Actions');
+    const last = sh.getLastRow();
+    if (last < 2) return json_({ ok: false, error: 'Action not found' });
+    const idCol = HR_TABS.Actions.indexOf('ID') + 1;
+    const ids = sh.getRange(2, idCol, last - 1, 1).getValues();
+    for (let i = 0; i < ids.length; i++) {
+      if (String(ids[i][0] || '') === String(d.id || '')) {
+        sh.deleteRow(i + 2);
+        return json_({ ok: true });
+      }
+    }
+    return json_({ ok: false, error: 'Action not found' });
+  });
+}
+
+function HR_boardNoteAdd_(d) {
+  if (String(d.key || '').trim() !== DASHBOARD_KEY) return json_({ ok: false, error: 'Unauthorized' });
+  return HR_withScriptLock_(function () {
+    const members = Array.isArray(d.members) ? d.members : [];
+    if (!members.length) return json_({ ok: false, error: 'No board members selected' });
+    const sh = HR_getTab_('BoardNotes');
+    const now = new Date();
+    const restore = d.note && typeof d.note === 'object' ? d.note : null;
+    const ids = members.map((member, i) => restore && i === 0 && restore.id
+      ? String(restore.id) : 'bn_' + Utilities.getUuid().slice(0, 12));
+    members.forEach((member, i) => {
+      sh.appendRow(clean_([
+        restore && i === 0 && restore.ts ? new Date(restore.ts) : now,
+        ids[i], String(member || ''), String(d.category || 'Note'), String(d.text || ''), String(d.by || 'HR')
+      ]));
+    });
+    return json_({ ok: true, ids });
+  });
+}
+
+function HR_boardNoteDelete_(d) {
+  if (String(d.key || '').trim() !== DASHBOARD_KEY) return json_({ ok: false, error: 'Unauthorized' });
+  return HR_withScriptLock_(function () {
+    const sh = HR_getTab_('BoardNotes');
+    const last = sh.getLastRow();
+    if (last < 2) return json_({ ok: false, error: 'Board note not found' });
+    const idCol = HR_TABS.BoardNotes.indexOf('ID') + 1;
+    const ids = sh.getRange(2, idCol, last - 1, 1).getValues();
+    for (let i = 0; i < ids.length; i++) {
+      if (String(ids[i][0] || '') === String(d.id || '')) {
+        sh.deleteRow(i + 2);
+        return json_({ ok: true });
+      }
+    }
+    return json_({ ok: false, error: 'Board note not found' });
+  });
 }

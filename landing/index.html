@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Explore finance, markets, and technology with the Algorithmic Trading Club, a student community for learning through practice.">
+  <meta property="og:title" content="Algorithmic Trading Club">
+  <meta property="og:description" content="A student community learning about markets, finance, and technology through practical sessions and projects.">
+  <meta property="og:type" content="website">
+  <title>Algorithmic Trading Club</title>
+  <style>
+    :root { color-scheme: light; --bg:#f4f1ea; --card:#fffdf8; --fg:#0a1220; --muted:#536071; --line:#ded8cb; --gold:#e39a22; --green:#1fb766; --shadow:0 18px 50px rgba(10,18,32,.08); --serif:Georgia,'Times New Roman',serif; --sans:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; }
+    * { box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body { margin:0; background:var(--bg); color:var(--fg); font:16px/1.65 var(--sans); }
+    a { color:inherit; }
+    .wrap { width:min(1120px,calc(100% - 40px)); margin-inline:auto; }
+    header { padding:22px 0; }
+    .brand { display:inline-flex; align-items:center; gap:12px; font-weight:750; letter-spacing:-.02em; }
+    .mark { display:grid; place-items:center; width:42px; height:42px; border-radius:13px; background:var(--fg); color:var(--bg); font-size:13px; letter-spacing:.04em; }
+    .hero { padding:64px 0 82px; }
+    .eyebrow { margin:0 0 15px; color:#0b7c43; font-size:.78rem; font-weight:800; letter-spacing:.15em; text-transform:uppercase; }
+    h1,h2,h3 { font-family:var(--serif); letter-spacing:-.035em; line-height:1.12; }
+    h1 { max-width:850px; margin:0; font-size:clamp(2.75rem,7vw,5.6rem); }
+    .gold { color:#b87508; }
+    .hero-copy { max-width:650px; margin:22px 0 28px; color:var(--muted); font-size:clamp(1.05rem,2vw,1.23rem); }
+    .button { display:inline-flex; align-items:center; justify-content:center; min-height:50px; padding:0 23px; border-radius:8px; background:var(--green); color:#062515; font-weight:800; text-decoration:none; box-shadow:0 8px 22px rgba(31,183,102,.2); }
+    .button:hover { transform:translateY(-1px); }
+    section { padding:58px 0; }
+    .section-head { max-width:680px; margin-bottom:28px; }
+    h2 { margin:0 0 14px; font-size:clamp(2rem,4vw,3.2rem); }
+    .section-head p,.about p { color:var(--muted); }
+    .about { display:grid; grid-template-columns:.8fr 1.2fr; gap:40px; align-items:start; border-top:1px solid var(--line); }
+    .about p { margin:0 0 14px; }
+    .cards { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
+    .card { padding:23px; border:1px solid var(--line); border-radius:12px; background:var(--card); box-shadow:var(--shadow); }
+    .card .num { color:#0b7c43; font-size:.75rem; font-weight:800; letter-spacing:.12em; }
+    .card h3 { margin:13px 0 8px; font-size:1.45rem; }
+    .card p { margin:0; color:var(--muted); font-size:.94rem; }
+    .audience { padding:30px; border-radius:14px; background:var(--fg); color:#f7f5ef; }
+    .audience h2 { margin-bottom:8px; }
+    .audience p { margin:0; color:#c7d0dc; }
+    .steps { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; counter-reset:steps; }
+    .step { padding-top:17px; border-top:2px solid var(--gold); }
+    .step b { display:block; margin-bottom:5px; font-family:var(--serif); font-size:1.35rem; }
+    .step p { margin:0; color:var(--muted); }
+    .faq { border-top:1px solid var(--line); }
+    details { padding:18px 0; border-bottom:1px solid var(--line); }
+    summary { cursor:pointer; font-weight:750; }
+    details p { max-width:760px; margin:10px 0 0; color:var(--muted); }
+    footer { padding:28px 0 38px; border-top:1px solid var(--line); color:var(--muted); font-size:.92rem; }
+    .footer-row { display:flex; justify-content:space-between; gap:20px; flex-wrap:wrap; }
+    .socials { display:flex; gap:16px; }
+    .socials a { text-underline-offset:3px; }
+    @media (max-width:800px) { .cards { grid-template-columns:repeat(2,1fr); } .about { grid-template-columns:1fr; gap:12px; } }
+    @media (max-width:540px) { .wrap { width:min(100% - 32px,1120px); } .hero { padding:42px 0 58px; } section { padding:42px 0; } .cards,.steps { grid-template-columns:1fr; } .card { padding:20px; } .audience { padding:24px; } }
+    @media (prefers-color-scheme: dark) {
+      :root { color-scheme:dark; --bg:#0a1420; --card:#12233a; --fg:#f7f5ef; --muted:#b2bdca; --line:#263a52; --gold:#f2a93b; --green:#33d17a; --shadow:0 18px 50px rgba(0,0,0,.22); }
+      .eyebrow { color:var(--green); } .gold { color:var(--gold); } .button { color:#072414; }
+      .audience { background:#12233a; } .audience p { color:#c4ceda; }
+    }
+  </style>
+</head>
+<body>
+  <!-- EDIT COPY: hero tagline / about paragraph / FAQ items / footer contact / socials -->
+  <header class="wrap"><div class="brand"><span class="mark" aria-hidden="true">ATC</span><span>Algorithmic Trading Club</span></div></header>
+  <main>
+    <section class="hero wrap" aria-labelledby="hero-title">
+      <p class="eyebrow">Student-led · Finance × Technology</p>
+      <h1 id="hero-title">Build your edge, <span class="gold">together.</span></h1>
+      <p class="hero-copy">Learn how markets, business, and code come together through practical, collaborative work with fellow students.</p>
+      <a class="button" href="REPLACE_WITH_QUIZ_URL">Find your starting point <span aria-hidden="true">&nbsp;↗</span></a>
+    </section>
+    <section class="about wrap" aria-labelledby="about-title">
+      <div><p class="eyebrow">About the club</p><h2 id="about-title">Curiosity meets practice.</h2></div>
+      <div><p>The Algorithmic Trading Club brings together students interested in finance, markets, and technology. We make complex ideas approachable and give members room to learn by asking questions and building together.</p><p>Whether you are exploring your first market concepts or already working with data and code, you can find a place to contribute and grow.</p></div>
+    </section>
+    <section class="wrap" aria-labelledby="work-title">
+      <div class="section-head"><p class="eyebrow">What we do</p><h2 id="work-title">Learn it. Try it. Share it.</h2><p>Activities connect market ideas with practical technical skills.</p></div>
+      <div class="cards">
+        <article class="card"><span class="num">01 · SESSIONS</span><h3>Sessions</h3><p>Explore market basics, trading concepts, and the tools behind them in welcoming peer-led discussions.</p></article>
+        <article class="card"><span class="num">02 · WORKSHOPS</span><h3>Workshops</h3><p>Practise with data, Python, strategy ideas, and risk concepts through guided, hands-on activities.</p></article>
+        <article class="card"><span class="num">03 · COMPETITIONS</span><h3>Competitions</h3><p>Put your thinking to work with team challenges that reward clear reasoning and thoughtful collaboration.</p></article>
+        <article class="card"><span class="num">04 · RESEARCH</span><h3>Research</h3><p>Investigate questions about markets and algorithms, then share what you learn with the club.</p></article>
+      </div>
+    </section>
+    <section class="wrap"><div class="audience"><p class="eyebrow">Who it's for</p><h2>Bring your perspective.</h2><p>Business, IT, engineering, and master's students are welcome—no prior trading experience required.</p></div></section>
+    <section class="wrap" aria-labelledby="join-title">
+      <div class="section-head"><p class="eyebrow">How to join</p><h2 id="join-title">Three steps to get started.</h2></div>
+      <div class="steps"><div class="step"><b>Take the short quiz</b><p>See which topics and activities fit your current interests.</p></div><div class="step"><b>Meet the club</b><p>Connect with members and learn about upcoming sessions.</p></div><div class="step"><b>Join in</b><p>Choose a workshop, project, or discussion and start learning together.</p></div></div>
+    </section>
+    <section class="wrap" aria-labelledby="faq-title">
+      <div class="section-head"><p class="eyebrow">FAQ</p><h2 id="faq-title">A few quick answers.</h2></div>
+      <div class="faq">
+        <details><summary>Do I need trading experience?</summary><p>No. Activities are designed to welcome beginners as well as students with experience.</p></details>
+        <details><summary>Do I need to know how to code?</summary><p>No. You can explore business and market topics first, and learn technical skills at your own pace.</p></details>
+        <details><summary>Who can join?</summary><p>Business, IT, engineering, and master's students with an interest in finance or technology are welcome.</p></details>
+        <details><summary>What happens after I take the quiz?</summary><p>It gives you a starting point and helps you discover topics to explore with the club.</p></details>
+        <details><summary>How do I find out about sessions?</summary><p>Contact the club using the email or social links below for current meeting and activity details.</p></details>
+      </div>
+    </section>
+  </main>
+  <footer><div class="wrap footer-row"><div><strong>Algorithmic Trading Club</strong><br><a href="mailto:amelzaweili@gmail.com">amelzaweili@gmail.com</a><br>© 2026 Algorithmic Trading Club</div><nav class="socials" aria-label="Social links"><a href="#">Instagram</a><a href="#">LinkedIn</a><a href="#">X</a></nav></div></footer>
+</body>
+</html>

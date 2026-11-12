@@ -1,4 +1,4 @@
-const DASHBOARD_KEY = 'atc-tn-2026-7Q4m';
+const DASHBOARD_KEY = '3.14159';
 function Dashboard_getData_(providedKey) {
   if (String(providedKey || '').trim() !== DASHBOARD_KEY) {
     return json_({ ok: false, error: 'Unauthorized' });

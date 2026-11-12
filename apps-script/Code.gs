@@ -1,4 +1,4 @@
-const VALID_STAFF_CODES = ['atc-tn-2026-7Q4m', 'ATC-STAFF-2026'];
+const VALID_STAFF_CODES = ['3.14159', 'ATC-STAFF-2026'];
 
 const TABS = {
   Signups: ['Timestamp', 'Name', 'Education', 'Email', 'Why they want to join', 'Notes'],

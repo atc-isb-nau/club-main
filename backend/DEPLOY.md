@@ -7,10 +7,10 @@
 5. **Verify the POST routes in the editor console**, running each line separately in a temporary function:
 
    ```js
-   Logger.log(doPost({ postData: { contents: JSON.stringify({ type: 'dashboard_read', key: 'atc-tn-2026-7Q4m' }) } }).getContent());
-   Logger.log(doPost({ postData: { contents: JSON.stringify({ type: 'hr_read',        key: 'atc-tn-2026-7Q4m' }) } }).getContent());
+   Logger.log(doPost({ postData: { contents: JSON.stringify({ type: 'dashboard_read', key: '3.14159' }) } }).getContent());
+   Logger.log(doPost({ postData: { contents: JSON.stringify({ type: 'hr_read',        key: '3.14159' }) } }).getContent());
    Logger.log(doPost({ postData: { contents: JSON.stringify({ type: 'dashboard_read', key: 'wrong'              }) } }).getContent());
    ```
 
    Expect `{ok:true, ...}` for the first two calls and `{ok:false, error:'Unauthorized'}` for the third.
-6. **Rotate the frontend password only after verification succeeds.** Change `STAFF_PASSWORD` in `app/assets/js/config.js` to `atc-tn-2026-7Q4m`, then commit and push that change. This is the final step so frontend and backend credentials rotate together.
+6. **Rotate the frontend password only after verification succeeds.** Change `STAFF_PASSWORD` in `app/assets/js/config.js` to `3.14159`, then commit and push that change. This is the final step so frontend and backend credentials rotate together.

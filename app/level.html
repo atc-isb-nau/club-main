@@ -82,6 +82,7 @@ function result(){
  ${U.box("Where you'd shine",t.fit)}
  ${U.box('Our tip for you',t.tip)}
  <p class="footer-note">Scan the sign-up code at our stand to join the Algorithmic Trading Club.</p>
+ <p id="saveStatus" class="status-pill">Saving result…</p>
  ${U.actions()}`;
  ATC.markCompletedGame('trader');
  ATC.send({
@@ -92,6 +93,19 @@ function result(){
   game:'trader',field:'',
   score:fin+it,total:6,result:t.n+' · '+side,
   details:`Finance ${fin}/3, Tech ${it}/3, Guardian ${sc.G}, Risk Taker ${sc.R}, Player ${sc.P}`
+ }).then(r => {
+  const el = document.getElementById('saveStatus');
+  if (!el) return;
+  if (r && r.ok === false) {
+    el.className = 'status-pill is-error';
+    el.textContent = 'Not saved — ' + (r.error || 'please tell a staff member');
+  } else if (r && r.queued) {
+    el.className = 'status-pill is-error';
+    el.textContent = 'Not confirmed saved — queued on this device. Reopen when online to retry.';
+  } else {
+    el.className = 'status-pill is-saved';
+    el.textContent = '✓ Result saved';
+  }
  });
 }
 q();

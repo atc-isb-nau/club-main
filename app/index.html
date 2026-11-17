@@ -168,7 +168,6 @@ async function onSubmit(e){
   const staffCodeForServer = ATC.isStaffOverrideActive() ? 'ATC-STAFF-2026' : '';
 
   const user = { name, education, email, motivation };
-  ATC.setUser(user);
   const result = await ATC.send({ type: 'signup', ...user, deviceId: ATC.deviceId(), staffCode: staffCodeForServer });
 
   if (result && result.ok === false) {
@@ -178,12 +177,13 @@ async function onSubmit(e){
     err.classList.remove('hidden');
     return;
   }
+  ATC.setUser(user);
   ATC.hideLoading();
-  menu();
+  menu(result && result.queued ? 'Signup is queued on this device; it is not confirmed in Sheets yet.' : '');
 }
 
 /* Step 2: choose a game */
-function menu(){
+function menu(syncNotice = ''){
   showLandingIntro(false);
   const u = ATC.getUser();
   const bizDone = ATC.hasCompletedGame('knowledge-business');
@@ -191,9 +191,10 @@ function menu(){
   const knowledgeDone = bizDone && itDone;
   const traderDone = ATC.hasCompletedGame('trader');
   const noGamesLeft = knowledgeDone && traderDone;
+  const notice = syncNotice ? `<p class="error-message" role="status">${esc(syncNotice)}</p>` : '';
 
   if (noGamesLeft) {
-    app.innerHTML = ATC.ui.emptyState(
+    app.innerHTML = notice + ATC.ui.emptyState(
       'All done for today',
       "You've completed both games on this device in the last 24 hours. Thanks for playing — come back tomorrow, or ask a staff member for a reset.",
       `<button class="${U.ghost}" data-go="restart">Next visitor</button>`
@@ -213,7 +214,7 @@ function menu(){
         <span class="option-copy">12 questions. Find your trading personality and your place between finance and tech.</span>
       </button>`;
     }
-    app.innerHTML = `<h1 class="${U.h1}">Hi ${esc(u.name.split(' ')[0])}, pick a <span class="hl">game</span></h1>
+    app.innerHTML = `${notice}<h1 class="${U.h1}">Hi ${esc(u.name.split(' ')[0])}, pick a <span class="hl">game</span></h1>
       <p class="lead">Do one or do both.</p>
       ${buttons}
       <button class="${U.ghost}" data-go="restart">Not you? Start over</button>`;

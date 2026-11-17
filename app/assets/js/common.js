@@ -144,20 +144,35 @@ const ATC = (() => {
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify(payload)
     });
-    let data = null;
-    try { data = await res.json(); } catch (e) { data = { ok: true }; }
+    const responseText = await res.text();
+    let data;
+    try {
+      data = JSON.parse(responseText);
+    } catch (e) {
+      throw new Error('Backend returned a non-JSON response (HTTP ' + res.status + ').');
+    }
+    if (!res.ok) throw new Error((data && data.error) || ('HTTP ' + res.status));
     return data;
   }
 
   async function send(payload) {
-    if (!cfg.APPS_SCRIPT_URL) { queue(payload); return { ok: true, queued: true }; }
+    if (!cfg.APPS_SCRIPT_URL) {
+      queue(payload);
+      return { ok: true, queued: true, error: 'No backend URL is configured.' };
+    }
     try {
       const data = await post(payload);
-      if (data && data.ok === false) return data;
+      if (data && data.ok === false) {
+        console.error('ATC backend rejected ' + payload.type + ':', data.error || 'Unknown error');
+        return data;
+      }
+      if (!data || data.ok !== true) throw new Error('Backend did not confirm the save.');
       return { ok: true };
     } catch (e) {
       queue(payload);
-      return { ok: true, queued: true };
+      const message = e && e.message ? e.message : 'Network request failed.';
+      console.error('ATC could not confirm ' + payload.type + '; queued locally:', message);
+      return { ok: true, queued: true, error: message };
     }
   }
 
@@ -166,16 +181,18 @@ const ATC = (() => {
     const q = readQueue();
     if (!q.length) return;
     writeQueue([]);
+    const retry = [];
     for (const p of q) {
       try {
         const data = await post(p);
-        if (data && data.ok === false) {
-          console.warn('ATC: dropped queued payload:', data.error);
-        }
+        if (data && data.ok === true) continue;
+        console.error('ATC queued ' + p.type + ' was rejected:', (data && data.error) || 'Backend did not confirm the save.');
       } catch (e) {
-        queue(p);
+        console.error('ATC could not retry queued ' + p.type + ':', e && e.message ? e.message : e);
       }
+      retry.push(p);
     }
+    writeQueue(retry.concat(readQueue()));
   }
   flush();
 
@@ -316,8 +333,8 @@ const ATC = (() => {
           el.className = 'status-pill is-error';
           el.textContent = 'Not saved — ' + (r.error || 'please tell a staff member');
         } else if (r && r.queued) {
-          el.className = 'status-pill';
-          el.textContent = '● Saved offline — will retry';
+          el.className = 'status-pill is-error';
+          el.textContent = 'Not confirmed saved — queued on this device. Reopen when online to retry.';
         } else {
           el.className = 'status-pill is-saved';
           el.innerHTML = '✓ Result saved';

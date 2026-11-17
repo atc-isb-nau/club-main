@@ -14,19 +14,85 @@
 <meta name="twitter:card" content="summary">
 <link rel="canonical" href="./index.html">
 <link rel="stylesheet" href="assets/css/theme.css">
+<style>
+  .page-shell { width: min(100% - 32px, 1120px); padding: 20px 0 48px; }
+  .brand { margin: 0 4px 22px; color: var(--fg); font-size: 14px; letter-spacing: -.02em; }
+  .brand-mark { width: 42px; height: 42px; border-radius: 12px; color: var(--bg); font-size: 13px; }
+  .landing-intro {
+    max-width: none;
+    min-height: 310px;
+    display: flex;
+    align-items: center;
+    margin: 0 auto 28px;
+    padding: clamp(18px, 4vw, 40px);
+    overflow: hidden;
+    border-radius: 18px;
+    color: #f7f5ef;
+    background: linear-gradient(110deg, rgba(5, 13, 23, .86), rgba(5, 13, 23, .42)),
+      url("https://ibas.edu.eu/wp-content/uploads/2024/11/NAU-Hall-1-scaled.jpg") center 48% / cover no-repeat;
+    box-shadow: var(--shadow);
+  }
+  .hero-content {
+    width: min(100%, 700px);
+    padding: clamp(22px, 4vw, 38px);
+    border: 1px solid rgba(255, 255, 255, .2);
+    border-radius: 14px;
+    background: rgba(5, 13, 23, .48);
+    -webkit-backdrop-filter: blur(3px);
+    backdrop-filter: blur(3px);
+  }
+  .landing-intro .eyebrow { color: #a8efc8; }
+  .landing-intro h1 { max-width: 15ch; font-size: clamp(38px, 7vw, 72px); line-height: 1.02; }
+  .landing-intro .hl { background: var(--gold); color: var(--gold-ink); }
+  .landing-intro p { max-width: 56ch; margin-top: 17px; color: #f0f2f4; }
+  .landing-points { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px 18px; }
+  .landing-points li { color: #f0f2f4; font-size: 13px; }
+  #app.app-card.app-content { max-width: 790px; margin: 0 auto; padding: 0; }
+  .registration-panel {
+    padding: clamp(22px, 4vw, 42px);
+    box-shadow: var(--shadow);
+  }
+  .registration-kicker { margin: 0 0 12px; color: #0b7c43; font-size: 11px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+  .registration-form { max-width: none; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 17px 20px; }
+  .registration-form > label { min-width: 0; }
+  .registration-form #customEduWrap,
+  .registration-form .staff-access,
+  .registration-form #motivationWrap,
+  .registration-form #err,
+  .registration-form button[type="submit"] { grid-column: 1 / -1; }
+  .registration-form .field-control { border-radius: 9px; }
+  .registration-form .primary-button { border-radius: 9px; box-shadow: 0 8px 22px rgba(31, 183, 102, .18); }
+  @media (max-width: 640px) {
+    .page-shell { width: min(100% - 24px, 1120px); padding-top: 14px; }
+    .brand { margin-bottom: 16px; }
+    .landing-intro { min-height: 0; margin-bottom: 18px; padding: 12px; border-radius: 14px; }
+    .hero-content { padding: 22px 18px; }
+    .landing-intro h1 { font-size: clamp(38px, 11vw, 56px); }
+    .landing-points { grid-template-columns: 1fr; gap: 8px; }
+    .registration-panel { padding: 22px 18px; }
+    .registration-form { grid-template-columns: 1fr; gap: 14px; }
+    .registration-form > * { grid-column: 1 / -1; }
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#0a1420; --card:#12233a; --fg:#f7f5ef; --muted:#b2bdca; --line:#263a52; --gold:#f2a93b; --green:#33d17a; --btn:#172a42; }
+    .registration-kicker { color: var(--green); }
+  }
+</style>
 </head>
 <body class="site-body">
 <main class="page-shell">
   <div class="brand"><span class="brand-mark" aria-hidden="true">ATC</span><span>Algorithmic Trading Club</span></div>
   <section id="landingIntro" class="landing-intro" aria-labelledby="landing-title">
-    <p class="eyebrow">Student-led · Finance × Technology</p>
-    <h1 id="landing-title">Build your edge, <span class="hl">together.</span></h1>
-    <p>Explore markets, business and code with students who are curious about how trading really works.</p>
-    <ul class="landing-points">
-      <li>Short assessments to find your starting point</li>
-      <li>Beginner-friendly, practical and collaborative</li>
-      <li>Open to business, IT, engineering and master’s students</li>
-    </ul>
+    <div class="hero-content">
+      <p class="eyebrow">Student-led · Finance × Technology</p>
+      <h1 id="landing-title">Build your edge, <span class="hl">together.</span></h1>
+      <p>Explore markets, business and code with students who are curious about how trading really works.</p>
+      <ul class="landing-points">
+        <li>Short assessments to find your starting point</li>
+        <li>Beginner-friendly, practical and collaborative</li>
+        <li>Open to business, IT, engineering and master’s students</li>
+      </ul>
+    </div>
   </section>
   <div id="app" class="app-card app-content"></div>
 </main>
@@ -56,9 +122,11 @@ function welcome(){
   showLandingIntro(true);
   const staffOn = ATC.isStaffOverrideActive();
   app.innerHTML = `
-    <h1 class="${U.h1}">Welcome to the <span class="hl">club</span></h1>
-    <p class="lead">Tell us who you are, then pick a quick game. It takes about 3 minutes.</p>
-    <form id="f" class="form-stack" novalidate>
+    <section class="registration-panel" aria-labelledby="registration-title">
+    <p class="registration-kicker">Registration · Takes about 3 minutes</p>
+    <h1 id="registration-title" class="${U.h1}">Start with <span class="hl">you.</span></h1>
+    <p class="lead">Tell us a little about yourself, then choose a quick assessment.</p>
+    <form id="f" class="form-stack registration-form" novalidate>
       <label><span class="${U.label}">Full name</span>
         <input id="name" type="text" required autocomplete="name" class="${U.input}"></label>
       <label><span class="${U.label}">University level</span>
@@ -76,6 +144,8 @@ function welcome(){
         <input id="customEdu" type="text" maxlength="100" class="${U.input}" placeholder="For example: 2nd-year engineering"></label>
       <label><span class="${U.label}">Email</span>
         <input id="email" type="email" required autocomplete="email" inputmode="email" class="${U.input}"></label>
+      <label><span class="${U.label}">Phone number</span>
+        <input id="phone" type="tel" required autocomplete="tel" inputmode="tel" class="${U.input}" placeholder="+216 55 123 456"></label>
       ${staffOn
         ? `<p class="staff-active">Staff mode is on for this device. <button type="button" id="staffOff" class="staff-toggle">Turn off</button></p>`
         : `<details class="staff-access">
@@ -83,11 +153,12 @@ function welcome(){
             <label><span class="${U.label}">Override code</span>
               <input id="staffCode" type="password" autocomplete="off" class="${U.input}" placeholder="For club staff devices"></label>
           </details>`}
-      <label><span class="${U.label}">Why do you want to join us? <span class="optional">(optional)</span></span>
+      <label id="motivationWrap"><span class="${U.label}">Why do you want to join us? <span class="optional">(optional)</span></span>
         <textarea id="motivation" rows="3" maxlength="500" class="${U.input}" placeholder="Tell us what interests you about the club"></textarea></label>
       <p id="err" class="hidden error-message"></p>
       <button type="submit" class="${U.primary}">Continue</button>
-    </form>`;
+    </form>
+    </section>`;
 
   const edu = document.getElementById('edu');
   const customEduWrap = document.getElementById('customEduWrap');
@@ -130,15 +201,19 @@ async function onSubmit(e){
   const customEducation = document.getElementById('customEdu').value.trim();
   const education = selectedEducation === 'other' ? customEducation : selectedEducation;
   const email = document.getElementById('email').value.trim();
-  const motivation = document.getElementById('motivation').value.trim();
+  const phone = document.getElementById('phone').value.trim();
+  const why = document.getElementById('motivation').value.trim();
+  const motivation = [why, phone ? 'Phone: ' + phone : ''].filter(Boolean).join('\n');
   const err = document.getElementById('err');
   err.classList.add('hidden');
 
   const typedStaffCode = (document.getElementById('staffCode')?.value || '').trim();
 
-  const ok = name && education && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const phoneDigits = phone.replace(/\D/g, '').length;
+  const validPhone = /^\+?[\d\s().-]+$/.test(phone) && phoneDigits >= 7 && phoneDigits <= 15;
+  const ok = name && education && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) && validPhone;
   if(!ok){
-    err.textContent = !name ? 'Enter your name.' : !education ? 'Choose or write your education level.' : 'Enter a valid email address.';
+    err.textContent = !name ? 'Enter your name.' : !education ? 'Choose or write your education level.' : !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? 'Enter a valid email address.' : 'Enter a valid phone number with country code if needed.';
     err.classList.remove('hidden');
     return;
   }
@@ -167,7 +242,7 @@ async function onSubmit(e){
 
   const staffCodeForServer = ATC.isStaffOverrideActive() ? 'ATC-STAFF-2026' : '';
 
-  const user = { name, education, email, motivation };
+  const user = { name, education, email, phone, motivation };
   const result = await ATC.send({ type: 'signup', ...user, deviceId: ATC.deviceId(), staffCode: staffCodeForServer });
 
   if (result && result.ok === false) {
